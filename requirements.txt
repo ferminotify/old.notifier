@@ -16,7 +16,6 @@ dbus-python==1.2.18
 distro==1.7.0
 docopt==0.6.2
 greenlet==1.1.2
-gyp==0.1
 httplib2==0.20.2
 icalendar==4.0.9
 ics==0.7.2
