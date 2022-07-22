@@ -44,7 +44,6 @@ pyaes==1.6.1
 pyasn1==0.4.8
 pycairo==1.20.1
 pycparser==2.21
-pycups==2.0.1
 PyGObject==3.42.0
 PyJWT==2.3.0
 pylibacl==0.6.0
