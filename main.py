@@ -1,4 +1,3 @@
-import schedule
 from datetime import time
 
 from src.databaseOperations import incrementNumNot, getSubscribers
