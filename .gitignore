@@ -1,0 +1,9 @@
+src/__pycache__
+.env
+pyvenv
+todo
+/share/
+/lib/
+/include/
+/emails/
+/bin/
