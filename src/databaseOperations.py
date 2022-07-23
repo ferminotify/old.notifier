@@ -103,7 +103,7 @@ class NotifierDB():
         self.Cursor.execute(f"""
             UPDATE subscribers
                 SET telegram = "{telegram_id}"
-            WHERE email = "{user_email}";
+            WHERE subscribers.email = "{user_email}";
         """)
         self.Connection.commit()
         return
