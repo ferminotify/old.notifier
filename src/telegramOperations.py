@@ -77,7 +77,7 @@ def last_minute_message(receiver: str, event: dict):
     return
 
 def tg_notification(notification: dict):
-    if str(notification["telegram"])[0] == '$':
+    if str(notification["tg"])[0] == '$':
         return
 
     for event in notification["events"]:
