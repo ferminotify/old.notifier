@@ -20,9 +20,13 @@ class Telegram:
         # self.CHAT_ID = 334908714              # matteo bini personal id
         
         self.bot=telepot.Bot(self.API_KEY)
-    
-    def user_welcome(telegram_id):
-        pass
+
+    def chatNotification(self, message: dict):
+        self.bot.sendMessage(message["receiver"], message["body"], parse_mode='MARKDOWN')
+        return
+
+    def user_welcome(self, telegram_id):
+        self.chatNotification({ "receiver": telegram_id, "body": "Registrazione effettuata correttamente" })
     
     def register_new_user(self,last_update_id, subs):
         inboxMessages = self.bot.getUpdates(offset=last_update_id)
@@ -39,10 +43,6 @@ class Telegram:
                     self.user_welcome(telegram_id)
 
         return last_update_id
-
-    def chatNotification(self, message: dict):
-        self.bot.sendMessage(message["receiver"], message["body"], parse_mode='MARKDOWN')
-        return
 
 def schedule_message(notification: dict):
     message = {
