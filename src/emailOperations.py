@@ -134,7 +134,7 @@ def email_notification(notification: dict):
         else:
             eventTime = event["startDateTime"]
 
-        eventToday = str(datetime.fromisoformat(eventTime))[:9] == str(datetime.today())[:9]
+        eventToday = str(datetime.fromisoformat(eventTime))[:10] == str(datetime.today())[:10]
         isSchoolHour = datetime.now().time() > time(8,10)
         isDaily =  time(7,55) < datetime.now().time() < time(8,10)
 
@@ -149,6 +149,5 @@ def email_notification(notification: dict):
                     "email": notification["email"]
                 }
                 last_minute_email(receiver, event)
-                notification["events"].remove(event)
 
     return

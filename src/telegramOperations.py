@@ -16,13 +16,11 @@ class Telegram:
         
         load_dotenv()
         self.API_KEY = os.getenv('TELEGRAM_API_KEY')
-        self.CHAT_ID = -1001512400920           # 3ciin chat id
-        # self.CHAT_ID = 334908714              # matteo bini personal id
         
-        self.bot=telepot.Bot(self.API_KEY)
+        self.bot = telepot.Bot(self.API_KEY)
 
     def chatNotification(self, message: dict):
-        self.bot.sendMessage(message["receiver"], message["body"], parse_mode='MARKDOWN')
+        print(self.bot.sendMessage(message["receiver"], message["body"], parse_mode='MARKDOWN'))
         return
 
     def user_welcome(self, telegram_id):
@@ -65,7 +63,7 @@ def schedule_message(notification: dict):
 def last_minute_message(receiver: str, event: dict):
     message = {
         "receiver_id": receiver["id"],
-        "receiver": receiver["tg"],
+        "receiver": receiver["telegram"],
         "uid": [event["id"]],
         "isWelcome": False,
         "body": get_last_minute_message(receiver, event)
@@ -86,9 +84,11 @@ def tg_notification(notification: dict):
         else:
             eventTime = event["startDateTime"]
 
-        eventToday = str(datetime.fromisoformat(eventTime))[:9] == str(datetime.today())[:9]
+        print("Event time: " + str(eventTime))
+        eventToday = str(datetime.fromisoformat(eventTime))[:10] == str(datetime.today())[:10]
         isSchoolHour = datetime.now().time() > time(8,10)
         isDaily =  time(7,55) < datetime.now().time() < time(8,10)
+        print(f"eventToday: {eventToday}\nisSchoolHour: {isSchoolHour}\nisDaily: {isDaily}")
 
         if eventToday:
             if isDaily:
@@ -101,7 +101,6 @@ def tg_notification(notification: dict):
                     "telegram": notification["tg"]
                 }
                 last_minute_message(receiver, event)
-                notification["events"].remove(event)
 
     return
 
