@@ -93,7 +93,6 @@ def tg_notification(notification: dict):
         if eventToday:
             if isDaily:
                 schedule_message(notification)
-                notification["events"].remove(event)
             elif isSchoolHour:
                 receiver = {
                     "id": notification["id"],

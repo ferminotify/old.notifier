@@ -141,7 +141,6 @@ def email_notification(notification: dict):
         if eventToday:
             if isDaily:
                 schedule_email(notification)
-                notification["events"].remove(event)
             elif isSchoolHour:
                 receiver = {
                     "id": notification["id"],
