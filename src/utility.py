@@ -8,6 +8,43 @@ from datetime import datetime
 #                                             #
 ###############################################
 
+###      MESSAGGIO DI CONFERMA ACCOUNT      ###
+
+def get_registration_mail_subject(name, verification_code):
+    return "L'ultimo passaggio! - Completamento registrazione Fermi Notifier"
+
+def get_registration_mail_raw(name, verification_code):
+    body = f"Visita questo sito: https://servizi.matteobini.me/users/register/confirmation/{verification_code}"
+    
+    return body
+
+def get_registration_mail_body(name, verification_code):
+    body = ""
+
+    with open("emails/confirm_registration-1.html") as f:
+        lines = f.read()
+        body += lines
+
+    body += name
+
+    with open("emails/confirm_registration-2.html") as f:
+        lines = f.read()
+        body += lines
+
+    body += verification_code
+
+    with open("emails/confirm_registration-3.html") as f:
+        lines = f.read()
+        body += lines
+
+    body += verification_code
+
+    with open("emails/confirm_registration-4.html") as f:
+        lines = f.read()
+        body += lines
+    
+    return body
+
 ###          MESSAGGIO DI BENVENUTO         ###
 
 def get_welcome_mail_body(user: dict):

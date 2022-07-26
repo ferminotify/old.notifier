@@ -53,30 +53,14 @@ class Email:
 
         return
 
-def welcome_notification(subs):
-    # Check for new users and send them the welcome
-    # notification.
-
-    for sub in subs:
-        if sub["n_not"] == 0:
-            email = {
-                "Receiver": sub["email"],
-                "Body": get_welcome_mail_body(sub["name"]),
-                "isWelcome": True,
-                "receiver_id": sub["id"]
-            }
-            send_email(email)
-    
-    return
-
 def send_email(email: dict):
     EM = Email()
 
     if email["isWelcome"]:
         EM.sendHTMLMail(
             email["Receiver"],
-            "Registrazione effettuata in Fermi Notifier",
-            "Hai effettuato la registrazione in Fermi Calendar Notifier correttamente",
+            "Registrazione completata a Fermi Notifier",
+            "Registrazione completata. Visita servizi.matteobini.me/fermi-notifier . Per informazioni: servizi@matteobini.me",
             email["Body"]
         )
         EM.notifyAdmin(email["Receiver"])
@@ -93,6 +77,45 @@ def send_email(email: dict):
     EM.closeConnection()
 
     return 
+
+def welcome_notification(subs):
+    # Check for new users and send them the welcome
+    # notification.
+
+    for sub in subs:
+        if sub["n_not"] == 0:
+            email = {
+                "Receiver": sub["email"],
+                "Body": get_welcome_mail_body(sub["name"]),
+                "isWelcome": True,
+                "receiver_id": sub["id"]
+            }
+            send_email(email)
+    
+    return
+
+def pending_registration(subs):
+    # Check if there are users not yet fully registered 
+    # (missing email confirmation)
+    for sub in subs:
+        if sub["n_not"] == -1:
+            verification_code = sub["telegram"]
+
+            email = {
+                "Receiver_id": sub["id"],
+                "Receiver": sub["email"],
+                "Uid": ["conferma_registrazione"],
+                "isWelcome": False,
+                "Subject": get_registration_mail_subject(sub["name"], verification_code),
+                "Raw": get_registration_mail_raw(sub["name"], verification_code),
+                "Body": get_registration_mail_body(sub["name"], verification_code),
+            }
+
+            send_email(email)
+                        
+
+    return
+
 
 def last_minute_email(receiver: dict, event: dict):
     # Last minute email

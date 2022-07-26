@@ -12,6 +12,7 @@ def main(last_update_id):
         subs = getSubscribers()
         notifications = collect_notifications(subs)
 
+        pending_registration(subs)
         welcome_notification(subs)
         last_update_id = register_new_user(subs, last_update_id)
 
