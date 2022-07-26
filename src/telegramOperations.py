@@ -45,7 +45,7 @@ class Telegram:
 def schedule_message(notification: dict):
     message = {
         "receiver_id": notification["id"],
-        "receiver": notification["telegram"],
+        "receiver": notification["tg"],
         "uid": [],
         "isWelcome": False
     }
