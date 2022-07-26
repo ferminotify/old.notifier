@@ -98,7 +98,7 @@ def pending_registration(subs):
     # Check if there are users not yet fully registered 
     # (missing email confirmation)
     for sub in subs:
-        if sub["n_not"] == -1:
+        if sub["n_not"] == -2:
             verification_code = sub["telegram"]
 
             email = {
