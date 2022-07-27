@@ -9,8 +9,13 @@ def getEvents():
     # operations.
     URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSn-iVUb73XGXN7qWU0S2njYO8yl8LFv0V-1a3VTU7mPB6rJUqYasGPJcmWyc1wGvjDd7IWH3qci75l/pub?gid=0&single=true&output=csv"
 
-    data = pd.read_csv(URL, sep=',')
-    data = data.to_numpy(na_value=None) # Parameter means that I convert nan obj (np.nan class) in None variables to manipulate them
+    data = []
+    try:
+        data = pd.read_csv(URL, sep=',')
+        data = data.to_numpy(na_value=None) # Parameter means that I convert nan obj (np.nan class) in None variables to manipulate them
+    except:
+        pass
+    
 
     all_events = []
     for _ in data:

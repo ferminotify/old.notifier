@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 
 from datetime import datetime, time
 
-from src.databaseOperations import storeSent, incrementNumNot
 from src.utility import *
 
 class Email:
@@ -64,7 +63,6 @@ def send_email(email: dict):
             email["Body"]
         )
         EM.notifyAdmin(email["Receiver"])
-        incrementNumNot(email["receiver_id"])
         return EM.closeConnection()
 
     EM.sendHTMLMail(
@@ -73,7 +71,6 @@ def send_email(email: dict):
         email["Raw"],
         email["Body"]
     )
-    storeSent(email["Receiver_id"], email["Uid"])
     EM.closeConnection()
 
     return 

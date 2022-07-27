@@ -221,6 +221,12 @@ def updateTelegramId(user_email, telegram_id):
     DB.updateTelegramId(user_email, telegram_id)
     DB.closeConnection()
 
+def db_notification(n):
+    for _ in n["events"]:
+        storeSent(n["id"], _["id"])
+        incrementNumNot(n["id"])
+    return
+
 # o = NotifierDB()
 #
 # print("Db originale: ")
