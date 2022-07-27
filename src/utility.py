@@ -201,20 +201,20 @@ def get_notification_tg_message(notification: dict):
 
 def get_last_minute_message(receiver: dict, event: dict):
     # header
-    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato un evento all'ultimo minuto:\nTitolo: **{event["subject"]}** \n"""
+    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato un evento all'ultimo minuto:\n*Titolo*: `{event["subject"]}` \n"""
     
     # date/time begin
     if event["startDate"] != None:
-        body += f"""Inizio: `{event["startDate"][8:]}-{event["startDate"][5:6]}-{event["startDate"][:3]}` \n"""
+        body += f"""*Inizio*: `{event["startDate"][8:]}-{event["startDate"][5:6]}-{event["startDate"][:3]}` \n"""
     else:
-        body += f"""Inizio: `{event["startDateTime"][11:15]}` \n"""
+        body += f"""*Inizio*: `{event["startDateTime"][11:16]}` \n"""
     
     # date/time end
     if event["endDate"] != None:
-        body += f"""Fine: `{event["endDate"][8:]}-{event["endDate"][5:6]}-{event["endDate"][:3]}` \n"""
+        body += f"""*Fine*: `{event["endDate"][8:]}-{event["endDate"][5:6]}-{event["endDate"][:3]}` \n"""
     else:
-        body += f"""Fine: `{event["endDateTime"][11:15]}` \n"""
+        body += f"""*Fine*: `{event["endDateTime"][11:16]}` \n"""
 
     # footer
-    body += f"""Ti auguriamo buon proseguimento di giornata.\n\n*Fermi Notifier Team.* \nservizi@matteobini.me"""
+    body += f"""Ti auguriamo buon proseguimento di giornata.\n\n_Fermi Notifier Team._ \nservizi@matteobini.me"""
     return body

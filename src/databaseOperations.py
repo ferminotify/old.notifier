@@ -74,20 +74,16 @@ class NotifierDB():
         return(all_elements)
 
     def getUserSentId(self, user_id):
-        self.Cursor.execute(f"SELECT * FROM sent;")
+        # Query sucks but function works
+        self.Cursor.execute("SELECT * FROM sent;")
         response = self.Cursor.fetchall()
         self.Connection.commit()
 
-        all_elements = []
+        all_id = []
         for _ in response:
-            element = {}
-            element["sub-id"] = _[1]
-            element["evt-id"] = _[2]
+            all_id.append(_[2])
 
-            if element["sub-id"] == user_id:
-                all_elements.append(element["evt-id"])
-
-        return(all_elements)
+        return all_id
 
     def incrementNumNot(self, user_id):
         self.Cursor.execute(f"""
@@ -112,7 +108,6 @@ class NotifierDB():
         pattern = "INSERT INTO sent(sub_id, evt) VALUES (%s, %s)"
         self.Cursor.execute(pattern, (user_id, event_id))
         self.Connection.commit()
-        self.incrementNumNot(user_id)
         
         return
 
@@ -190,8 +185,7 @@ class NotifierDB():
 
 def storeSent(user_id, event_id):
     DB = NotifierDB()
-    for _ in event_id:
-        DB.storeNotification(user_id, _)
+    DB.storeNotification(user_id, event_id)
     DB.closeConnection()
 
     return
@@ -230,8 +224,10 @@ def db_notification(n):
 # o = NotifierDB()
 #
 # print("Db originale: ")
-# o.getSub()
-#
+# l = o.getSub()
+# for _ in l:
+#     print(_)
+# #
 # print("Db eliminato: ")
 # o.dropTable("S0n0D4vv£r0'$1cur*","U4cC1=qu3st4=0p3r4zion3=3=ri$chiosa","password")
 #
@@ -239,7 +235,8 @@ def db_notification(n):
 # o.createTable2()
 #
 # print("Nuovo db: ")
-# l = o.getSub()
+# l = o.getUserSentId("25")
+# print(l)
 # for _ in l:
 #     print(_)
 #
