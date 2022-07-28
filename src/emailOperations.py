@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime, time
 
 from src.utility import *
+from src.databaseOperations import incrementNumNot
 
 class Email:
 
@@ -88,6 +89,7 @@ def welcome_notification(subs):
                 "receiver_id": sub["id"]
             }
             send_email(email)
+            incrementNumNot(sub["id"])
     
     return
 
@@ -109,7 +111,7 @@ def pending_registration(subs):
             }
 
             send_email(email)
-                        
+            incrementNumNot(sub["id"])
 
     return
 
