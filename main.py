@@ -9,9 +9,11 @@ def deliver_notification(n):
     # be done when I decide to notify someone: 
     # send email, send messaage and store the 
     # notification
-    email_notification(n)
-    tg_notification(n)
-    db_notification(n)
+    notifications = email_notification(n)
+    notifications += tg_notification(n)
+    
+    if notifications > 0:
+        db_notification(n)
 
     return
 
@@ -20,7 +22,7 @@ def main(last_update_id):
     while True:
         subs = getSubscribers()
         notifications = collect_notifications(subs)
-
+        
         pending_registration(subs)
         welcome_notification(subs)
         last_update_id = register_new_user(subs, last_update_id)

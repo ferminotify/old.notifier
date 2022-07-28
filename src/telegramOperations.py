@@ -78,18 +78,17 @@ def tg_notification(notification: dict):
     if str(notification["tg"])[0] == 'X':
         return
 
+    today_events = 0
     for event in notification["events"]:
         if event["startDate"] != None:
             eventTime = event["startDate"]
         else:
             eventTime = event["startDateTime"]
 
-        print("Event time: " + str(eventTime))
         eventToday = str(datetime.fromisoformat(eventTime))[:10] == str(datetime.today())[:10]
         isSchoolHour = datetime.now().time() > time(8,10)
         isDaily =  time(7,55) < datetime.now().time() < time(8,10)
-        print(f"eventToday: {eventToday}\nisSchoolHour: {isSchoolHour}\nisDaily: {isDaily}")
-
+        
         if eventToday:
             if isDaily:
                 schedule_message(notification)
@@ -100,8 +99,9 @@ def tg_notification(notification: dict):
                     "telegram": notification["tg"]
                 }
                 last_minute_message(receiver, event)
+            today_events += 1
 
-    return
+    return today_events
 
 def register_new_user(subs, last_update_id):
     TG = Telegram()

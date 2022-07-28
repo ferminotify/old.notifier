@@ -148,6 +148,7 @@ def schedule_email(notification: dict):
     return
 
 def email_notification(notification: dict):
+    today_events = 0
     for event in notification["events"]:
         if event["startDate"] != None:
             eventTime = event["startDate"]
@@ -168,5 +169,6 @@ def email_notification(notification: dict):
                     "email": notification["email"]
                 }
                 last_minute_email(receiver, event)
+            today_events += 1
 
-    return
+    return today_events
