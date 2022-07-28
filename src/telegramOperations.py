@@ -45,7 +45,7 @@ class Telegram:
 def schedule_message(notification: dict):
     message = {
         "receiver_id": notification["id"],
-        "receiver": notification["tg"],
+        "receiver": notification["telegram"],
         "uid": [],
         "isWelcome": False
     }
@@ -75,7 +75,7 @@ def last_minute_message(receiver: str, event: dict):
     return
 
 def tg_notification(notification: dict):
-    if str(notification["tg"])[0] == 'X':
+    if str(notification["telegram"])[0] == 'X':
         return
 
     today_events = 0
@@ -96,7 +96,7 @@ def tg_notification(notification: dict):
                 receiver = {
                     "id": notification["id"],
                     "name": notification["name"],
-                    "telegram": notification["tg"]
+                    "telegram": notification["telegram"]
                 }
                 last_minute_message(receiver, event)
             today_events += 1

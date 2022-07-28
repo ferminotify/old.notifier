@@ -58,7 +58,7 @@ def collect_notifications(subs):
                 "id": sub["id"],
                 "name": sub["name"],
                 "email": sub["email"],
-                "tg": sub["telegram"],
+                "telegram": sub["telegram"],
                 "events": user_events
             })
 
