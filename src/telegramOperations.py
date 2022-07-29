@@ -8,25 +8,44 @@ from datetime import datetime, time
 from src.databaseOperations import updateTelegramId
 from src.utility import * 
 
+###############################################
+#                                             #
+#                                             #
+#               GENERAL PURPOSE               #
+#                                             #
+#                                             #
+###############################################
+
 class Telegram:
-    # Gestisce i rapporti con Telegram tramite le APIs
 
     def __init__(self):
-        # Instaura la connessione configurando il bot
-        
         load_dotenv()
         self.API_KEY = os.getenv('TELEGRAM_API_KEY')
-        
         self.bot = telepot.Bot(self.API_KEY)
 
     def chatNotification(self, message: dict):
-        print(self.bot.sendMessage(message["receiver"], message["body"], parse_mode='MARKDOWN'))
+        self.bot.sendMessage(
+            message["receiver"], 
+            message["body"], 
+            parse_mode='MARKDOWN'
+        )
+
         return
 
     def user_welcome(self, telegram_id):
-        self.chatNotification({ "receiver": telegram_id, "body": "Registrazione effettuata correttamente" })
+        # Sends the confirmation for connecting telegram 
+        # account id to service
+        self.chatNotification(message = {
+            "receiver": telegram_id, 
+            "body": "Registrazione effettuata correttamente" 
+        })
     
     def register_new_user(self,last_update_id, subs):
+        # Check the inbox for new messages (watchout the offest),
+        # and if a message is idential to a unique alphanumeric 
+        # id (stored in "telegram" column into the database) I 
+        # associate the sender's telegram id with my subscriber. 
+
         inboxMessages = self.bot.getUpdates(offset=last_update_id)
         for _ in inboxMessages:
 
@@ -42,17 +61,44 @@ class Telegram:
 
         return last_update_id
 
-def schedule_message(notification: dict):
+###############################################
+#                                             #
+#                                             #
+#           HANDLE USER REGISTRATION          #
+#                                             #
+#                                             #
+###############################################
+
+def register_new_user(subs, last_update_id):
+    # Executes the registration without initializing no objects
+    # outside this function
+    TG = Telegram()
+    TG.register_new_user(last_update_id, subs)
+
+    return 
+
+
+###############################################
+#                                             #
+#                                             #
+#         USER NOTIFICATION MESSAGES          #
+#                                             #
+#                                             #
+###############################################
+
+
+def daily_message(notification: dict):
+    # Set up message for daily roundup notification
+
     message = {
         "receiver_id": notification["id"],
         "receiver": notification["telegram"],
         "uid": [],
-        "isWelcome": False
+        message["body"]: get_notification_tg_message(notification)
     }
 
     for event in notification["events"]:
         message["uid"].append(event["id"])
-        message["body"] = get_notification_tg_message(notification)
     
     TG = Telegram()
     TG.chatNotification(message)
@@ -61,11 +107,13 @@ def schedule_message(notification: dict):
 
 
 def last_minute_message(receiver: str, event: dict):
+    # TODO IMPLEMENTARE SUPPORTO PIÙ EVENTI LAST MINUTE
+
+    # Set up message for last minute notification
+
     message = {
         "receiver_id": receiver["id"],
         "receiver": receiver["telegram"],
-        "uid": [event["id"]],
-        "isWelcome": False,
         "body": get_last_minute_message(receiver, event)
     }
     
@@ -75,34 +123,33 @@ def last_minute_message(receiver: str, event: dict):
     return
 
 def tg_notification(notification: dict):
+    # I manipulate the subscribers' events and I choose if 
+    # notify: I could send it another day, send it later today
+    # or send it now (because is last minute or because it's 
+    # time for daily roundup notification)
+    
     if str(notification["telegram"])[0] == 'X':
+        # I exit the function when the user did not 
+        # connect telegram
         return
 
-    today_events = 0
-    for event in notification["events"]:
-        if event["startDate"] != None:
-            eventTime = event["startDate"]
-        else:
-            eventTime = event["startDateTime"]
+    # Check the current time slot
+    isSchoolHour = datetime.now().time() > time(8,10)
+    isDaily =  time(7,55) < datetime.now().time() < time(8,10)
 
-        eventToday = str(datetime.fromisoformat(eventTime))[:10] == str(datetime.today())[:10]
-        isSchoolHour = datetime.now().time() > time(8,10)
-        isDaily =  time(7,55) < datetime.now().time() < time(8,10)
-        
-        if eventToday:
-            if isDaily:
-                schedule_message(notification)
-            elif isSchoolHour:
-                receiver = {
-                    "id": notification["id"],
-                    "name": notification["name"],
-                    "telegram": notification["telegram"]
-                }
-                last_minute_message(receiver, event)
-            today_events += 1
+    receiver = {
+        "id": notification["id"],
+        "name": notification["name"],
+        "telegram": notification["telegram"]
+    }
+    if isDaily:
+        # It's time for the daily notification!
+        daily_message(receiver, notification["events"])
 
-    return today_events
+    elif isSchoolHour:
+        # The daily notification has already been sent 
+        # but there're is a last minute events 
+        last_minute_message(receiver, notification["events"]) # FIX THIS !!! ADD SUPPORT FOR MULTIPLE EVENTS LAST MINUTE MESSAGE TODO
 
-def register_new_user(subs, last_update_id):
-    TG = Telegram()
-    return TG.register_new_user(last_update_id, subs)
+    return
+

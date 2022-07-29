@@ -1,5 +1,7 @@
 import pandas as pd
 from src.databaseOperations import getUserSentId
+from datetime import datetime
+from src.utility import *
 
 def getEvents():
     # Get events from Google Sheets (format output: csv).
@@ -50,7 +52,7 @@ def collect_notifications(subs):
                 kwInSubject = any(i.lower() in evt["subject"].lower() for i in usrKw)
                 evtNotInDB = evt["id"] not in sent
                         
-                if kwInSubject and evtNotInDB:
+                if kwInSubject and evtNotInDB and isEventToday(evt):
                     user_events.append(evt)
 
         if len(user_events) > 0:

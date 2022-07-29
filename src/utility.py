@@ -1,4 +1,24 @@
-from datetime import datetime
+from datetime import datetime, time
+
+###############################################
+#                                             #
+#                                             #
+#               GENERAL PURPOSE               #
+#                                             #
+#                                             #
+###############################################
+
+def isEventToday(event):
+    # Check if the events is a all-day and check if it
+    # is today 
+    #
+    # The workday has to be started to return true (7.55)
+    if event["startDate"] != None:
+        eventTime = event["startDate"]
+    else:
+        eventTime = event["startDateTime"]
+
+    return ((str(datetime.fromisoformat(eventTime))[:10] == str(datetime.today())[:10]) and time(7,55) < datetime.now().time())
 
 ###############################################
 #                                             #
@@ -10,7 +30,7 @@ from datetime import datetime
 
 ###      MESSAGGIO DI CONFERMA ACCOUNT      ###
 
-def get_registration_mail_subject(name, verification_code):
+def get_registration_mail_subject():
     return "L'ultimo passaggio! - Completamento registrazione Fermi Notifier"
 
 def get_registration_mail_raw(name, verification_code):
@@ -45,6 +65,8 @@ def get_registration_mail_body(name, verification_code):
     
     return body
 
+
+
 ###          MESSAGGIO DI BENVENUTO         ###
 
 def get_welcome_mail_body(user: dict):
@@ -61,41 +83,41 @@ def get_welcome_mail_body(user: dict):
 
     return body
 
-###          MESSAGGIO DI NOTIFICA          ###
 
-def get_notification_mail_subject(notification: dict):
+
+###     MESSAGGIO DI NOTIFICA QUOTIDIANO    ###
+
+def get_notification_mail_subject(receiver: dict, events: list):
     body = ""
 
-    body += f"""Hai {len(notification["events"])} nuovi eventi sul Calendario Giornaliero - Daily update"""
+    body += f"""Hai {len(events)} nuovi eventi sul Calendario Giornaliero - Daily update"""
     
     return body
 
-
-def get_notification_mail_raw(notification: dict):
+def get_notification_mail_raw():
     return "Ci sono nuovi eventi che ti coinvolgono sul calendario giornaliero"
 
-
-def get_notification_mail_body(notification: dict):
+def get_notification_mail_body(receiver: dict, events: list):
     body = ""
     with open("emails/daily_notification-1.html") as f:
         lines = f.read()
         body += lines
     
-    body += notification["name"]
+    body += receiver["name"]
 
     with open("emails/daily_notification-2.html") as f:
         lines = f.read()
         body += lines
 
-    body += str(len(notification["events"]))
+    body += str(len(events))
 
     with open("emails/daily_notification-3.html") as f:
         lines = f.read()
         body += lines
 
-    for _ in notification["events"]:
+    for _ in events:
         body += "\n<li>Evento "
-        body += str(notification["events"].index(_) + 1)
+        body += str(events.index(_) + 1)
         body += "</code><ul><li><b>Nome:</b><code>"
         body += _["subject"]
         body += "</code></li><li><b>Orario di inizio:</b> <code>"
@@ -116,9 +138,11 @@ def get_notification_mail_body(notification: dict):
 
     return body
 
+
+
 ###    MESSAGGIO DI NOTIFICA LAST MINUTE    ###
 
-def get_last_minute_notification_mail_body(receiver: dict, event: dict):
+def get_last_minute_notification_mail_body(receiver: dict, events: list):
     body = ""
     
     with open("emails/last_minute_notification-1.html") as f:
@@ -131,25 +155,34 @@ def get_last_minute_notification_mail_body(receiver: dict, event: dict):
         lines = f.read()
         body += lines
     
-    body += event["subject"]
+    body += f"""{len(events)} eventi dell'ultimo minuto: """
 
-    with open("emails/last_minute_notification-3.html") as f:
-        lines = f.read()
-        body += lines
-    
-    if event["startDate"] != None:
-        body += f"""{event["startDate"][8:9]}-{event["startDate"][5:6]}-{event["startDate"][:4]}"""
-    else:
-        body += f"""{event["startDateTime"][11:16]}"""
-    
-    with open("emails/last_minute_notification-4.html") as f:
-        lines = f.read()
-        body += lines
+    for _ in events:
+        with open("emails/last_minute_notification-2bis.html") as f:
+            lines = f.read()
+            body += lines
+        
+        body += _["subject"]
+        
+        with open("emails/last_minute_notification-3.html") as f:
+            lines = f.read()
+            body += lines
+        
+        if _["startDate"] != None:
+            body += f"""{_["startDate"][8:9]}-{_["startDate"][5:6]}-{_["startDate"][:4]}"""
+        else:
+            body += f"""{_["startDateTime"][11:16]}"""
+        
+        with open("emails/last_minute_notification-4.html") as f:
+            lines = f.read()
+            body += lines
 
-    if event["endDate"] != None:
-        body += f"""{event["endDate"][8:9]}-{event["endDate"][5:6]}-{event["endDate"][:4]}"""
-    else:
-        body += f"""{event["endDateTime"][11:16]}"""
+        if _["endDate"] != None:
+            body += f"""{_["endDate"][8:9]}-{_["endDate"][5:6]}-{_["endDate"][:4]}"""
+        else:
+            body += f"""{_["endDateTime"][11:16]}"""
+
+        body += "</code></li></ul>"
 
     with open("emails/last_minute_notification-5.html") as f:
         lines = f.read()
@@ -162,8 +195,8 @@ def get_last_minute_notification_mail_subject():
     return "Nuovo evento dal calendario giornaliero! - Last minute update"
 
 
-def get_last_minute_notification_mail_raw(receiver: dict, event: dict):
-    return f"""Ciao {receiver["name"]}.\nAbbiamo trovato un evento all'ultimo minuto:\n{event["subject"]}\nInizio: {event["startDateTime"]} / {event["startDate"]}\nFine: {event["endDateTime"]} / {event["endDate"]}\n. Ti auguriamo buon proseguimento di giornata.\n\nFermi Notifier Team.\nservizi@matteobini.me\nservizi.matteobini.me"""
+def get_last_minute_notification_mail_raw(receiver: dict, events: list):
+    return f"""Ciao {receiver["name"]}.\nAbbiamo trovato un eventi dell'ultimo minuto. Ti auguriamo buon proseguimento di giornata.\n\nFermi Notifier Team.\nservizi@matteobini.me\nservizi.matteobini.me"""
 
 
 ###############################################
@@ -174,10 +207,10 @@ def get_last_minute_notification_mail_raw(receiver: dict, event: dict):
 #                                             #
 ###############################################
 
-def get_notification_tg_message(notification: dict):
+def get_notification_tg_message(receiver: dict, events: list):
     body = ""
-    body += f"""Ciao {notification["name"]}, ecco il tuo daily roundup\n"""
-    for _ in notification["events"]:
+    body += f"""Ciao {receiver["name"]}, ecco il tuo daily roundup\n"""
+    for _ in events:
         body += f"""Nome evento: {_["subject"]}\n"""
         if _["startDate"] != None:
             body += f"""{_["startDate"][8:9]}-{_["startDate"][5:6]}-{_["startDate"][:4]}"""
@@ -198,22 +231,24 @@ def get_notification_tg_message(notification: dict):
     return
 
 
-
-def get_last_minute_message(receiver: dict, event: dict):
+def get_last_minute_message(receiver: dict, events: list):
     # header
-    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato un evento all'ultimo minuto:\n*Titolo*: `{event["subject"]}` \n"""
+    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato {len(events)} eventi dell'ultimo minuto:\n"""
+
+    for _ in events:
+        body += f"""*Titolo*: `{_["subject"]}` \n"""
     
-    # date/time begin
-    if event["startDate"] != None:
-        body += f"""*Inizio*: `{event["startDate"][8:]}-{event["startDate"][5:6]}-{event["startDate"][:3]}` \n"""
-    else:
-        body += f"""*Inizio*: `{event["startDateTime"][11:16]}` \n"""
-    
-    # date/time end
-    if event["endDate"] != None:
-        body += f"""*Fine*: `{event["endDate"][8:]}-{event["endDate"][5:6]}-{event["endDate"][:3]}` \n"""
-    else:
-        body += f"""*Fine*: `{event["endDateTime"][11:16]}` \n"""
+        # date/time begin
+        if _["startDate"] != None:
+            body += f"""*Inizio*: `{_["startDate"][8:]}-{_["startDate"][5:6]}-{_["startDate"][:3]}` \n"""
+        else:
+            body += f"""*Inizio*: `{_["startDateTime"][11:16]}` \n"""
+        
+        # date/time end
+        if _["endDate"] != None:
+            body += f"""*Fine*: `{_["endDate"][8:]}-{_["endDate"][5:6]}-{_["endDate"][:3]}` \n"""
+        else:
+            body += f"""*Fine*: `{_["endDateTime"][11:16]}` \n\n"""
 
     # footer
     body += f"""Ti auguriamo buon proseguimento di giornata.\n\n_Fermi Notifier Team._ \nservizi@matteobini.me"""

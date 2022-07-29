@@ -9,28 +9,31 @@ def deliver_notification(n):
     # be done when I decide to notify someone: 
     # send email, send messaage and store the 
     # notification
-    notifications = email_notification(n)
-    notifications += tg_notification(n)
-    
-    if notifications > 0:
-        db_notification(n)
+    email_notification(n)
+    tg_notification(n)
+    db_notification(n["id"], n["events"])
 
     return
 
 def main(last_update_id):
 
     while True:
+        ###           COLLECT SUBSCRIBERS DATA          ###
         subs = getSubscribers()
-        notifications = collect_notifications(subs)
         
+        ###           USER REGISTRATION EVENTS          ###
         pending_registration(subs)
         welcome_notification(subs)
+
+        ###        TELEGRAM REGISTRATION EVENTS         ###
         last_update_id = register_new_user(subs, last_update_id)
 
-        for n in notifications:
-            deliver_notification(n)
+        ###        COLLECT & SEND NOTIFICATIONS         ###
+        notifications = collect_notifications(subs)
+        for user in notifications:
+            deliver_notification(user)
 
-    return "D'fuq"
+    return "merda."
 
 
 if __name__ == "__main__":

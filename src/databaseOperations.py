@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import psycopg2
+from src.utility import *
 
 class NotifierDB():
     # Operazioni di notifica email/telegram col database. Verranno usate 
@@ -215,10 +216,10 @@ def updateTelegramId(user_email, telegram_id):
     DB.updateTelegramId(user_email, telegram_id)
     DB.closeConnection()
 
-def db_notification(n):
-    for _ in n["events"]:
-        storeSent(n["id"], _["id"])
-        incrementNumNot(n["id"])
+def db_notification(user_id, notified_events):
+    for _ in notified_events:
+        storeSent(user_id, _["id"])
+        incrementNumNot(user_id)
     return
 
 # o = NotifierDB()
@@ -236,7 +237,6 @@ def db_notification(n):
 #
 # print("Nuovo db: ")
 # l = o.getUserSentId("25")
-# print(l)
 # for _ in l:
 #     print(_)
 #
