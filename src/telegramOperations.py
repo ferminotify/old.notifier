@@ -48,16 +48,22 @@ class Telegram:
 
         inboxMessages = self.bot.getUpdates(offset=last_update_id)
         for _ in inboxMessages:
-
+            
             for i in subs:
-                if _["message"]["text"] == i["telegram"]:
-                    user_email = i["email"]
-                    telegram_id = _["message"]["from"]["id"]
+                # The next lines I check if I got messages from any
+                # new user or some stranger (first 2 lines to check 
+                # if I didn't get messages from groups, last one 
+                # check for the message that i got from my new user)
+                if "my_chat_member" not in _.keys():
+                    if ("new_chat_participant" not in _["message"]) and ("left_chat_participant" not in _["message"]):
+                        if _["message"]["text"] == i["telegram"]:
+                            user_email = i["email"]
+                            telegram_id = _["message"]["from"]["id"]
 
-                    last_update_id = _["update_id"] if _["update_id"] > last_update_id else last_update_id
+                            last_update_id = _["update_id"] if _["update_id"] > last_update_id else last_update_id
 
-                    updateTelegramId(user_email, telegram_id)
-                    self.user_welcome(telegram_id)
+                            updateTelegramId(user_email, telegram_id)
+                            self.user_welcome(telegram_id)
 
         return last_update_id
 
