@@ -13,6 +13,11 @@ def isEventToday(event):
     # is today 
     #
     # The workday has to be started to return true (7.55)
+    
+    if (event["startDate"] == None) and (event["startDateTime"] == None):
+        # In case there are no events at all today
+        return False
+
     if event["startDate"] != None:
         eventTime = event["startDate"]
     else:
