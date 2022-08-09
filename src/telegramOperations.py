@@ -93,17 +93,17 @@ def register_new_user(subs, last_update_id):
 ###############################################
 
 
-def daily_message(notification: dict):
+def daily_message(receiver: dict, events: list):
     # Set up message for daily roundup notification
 
     message = {
-        "receiver_id": notification["id"],
-        "receiver": notification["telegram"],
+        "receiver_id": receiver["id"],
+        "receiver": receiver["telegram"],
         "uid": [],
-        message["body"]: get_notification_tg_message(notification)
+        message["body"]: get_notification_tg_message(receiver, events)
     }
 
-    for event in notification["events"]:
+    for event in events:
         message["uid"].append(event["id"])
     
     TG = Telegram()
