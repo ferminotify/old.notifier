@@ -113,7 +113,6 @@ def daily_message(receiver: dict, events: list):
 
 
 def last_minute_message(receiver: str, event: dict):
-    # TODO IMPLEMENTARE SUPPORTO PIÙ EVENTI LAST MINUTE
 
     # Set up message for last minute notification
 
@@ -155,7 +154,7 @@ def tg_notification(notification: dict):
     elif isSchoolHour:
         # The daily notification has already been sent 
         # but there're is a last minute events 
-        last_minute_message(receiver, notification["events"]) # FIX THIS !!! ADD SUPPORT FOR MULTIPLE EVENTS LAST MINUTE MESSAGE TODO
+        last_minute_message(receiver, notification["events"])
 
     return
 
