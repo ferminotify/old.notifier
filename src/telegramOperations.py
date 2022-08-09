@@ -60,7 +60,7 @@ class Telegram:
                             user_email = i["email"]
                             telegram_id = _["message"]["from"]["id"]
 
-                            last_update_id = _["update_id"] if _["update_id"] > last_update_id else last_update_id
+                            last_update_id = _["update_id"]
 
                             updateTelegramId(user_email, telegram_id)
                             self.user_welcome(telegram_id)
