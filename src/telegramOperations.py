@@ -100,7 +100,7 @@ def daily_message(receiver: dict, events: list):
         "receiver_id": receiver["id"],
         "receiver": receiver["telegram"],
         "uid": [],
-        message["body"]: get_notification_tg_message(receiver, events)
+        "body": get_notification_tg_message(receiver, events)
     }
 
     for event in events:
