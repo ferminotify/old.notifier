@@ -15,7 +15,7 @@ def deliver_notification(n):
 
     return
 
-def main(last_update_id):
+def main():
 
     while True:
         ###           COLLECT SUBSCRIBERS DATA          ###
@@ -26,7 +26,7 @@ def main(last_update_id):
         welcome_notification(subs)
 
         ###        TELEGRAM REGISTRATION EVENTS         ###
-        last_update_id = register_new_user(subs, last_update_id)
+        register_new_user(subs)
 
         ###        COLLECT & SEND NOTIFICATIONS         ###
         notifications = collect_notifications(subs)
@@ -37,7 +37,7 @@ def main(last_update_id):
 
 
 if __name__ == "__main__":
-    main(last_update_id=0)
+    main()
 
 '''
 

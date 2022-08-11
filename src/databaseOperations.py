@@ -114,15 +114,9 @@ class NotifierDB():
 
     def createTable(self):
         # Operazione di configurazione/testing/debugging.
-        self.Cursor.execute("""CREATE TABLE subscribers (
-            id BIGSERIAL PRIMARY KEY NOT NULL,
-            name VARCHAR (50) NOT NULL,
-            surname VARCHAR (50) NOT NULL,
-            email VARCHAR (50) UNIQUE NOT NULL,
-            password VARCHAR (120) NOT NULL,
-            telegram VARCHAR (50) UNIQUE,
-            tags text ARRAY,
-            notifications SMALLINT
+        self.Cursor.execute("""CREATE TABLE stuff (
+            key VARCHAR (15) NOT NULL,
+            value VARCHAR (100) NOT NULL
         )""")
         self.Connection.commit()
 
@@ -168,6 +162,26 @@ class NotifierDB():
         self.Cursor.execute(pattern, ("Matteo Bini", "mail@matteobini.me", "MatteoBini", "M", "TRUE", "TRUE", "3CIIN, OLIMPIADI DI INFORMATICA, OIS, BINI", "A"))
         self.Connection.commit()
 
+        return
+
+    def getTgOffset(self):
+        self.Cursor.execute(f"SELECT * FROM stuff")
+        response = self.Cursor.fetchall()
+        self.Connection.commit()
+
+        for _ in response:
+            if _[0] == "telegram_offset":
+                offset = _[1]
+
+        return offset
+
+    def updateTgOffset(self, last_update_id):
+        self.Cursor.execute(f"""
+            UPDATE stuff
+                SET value = '{last_update_id}'
+            WHERE key = 'telegram_offset';""")
+        self.Connection.commit()
+        
         return
 
     def debug(self):
@@ -222,7 +236,21 @@ def db_notification(user_id, notified_events):
         incrementNumNot(user_id)
     return
 
+def updateTgOffset(last_update_id):
+    DB = NotifierDB()
+    DB.updateTgOffset(last_update_id)
+    DB.closeConnection()
+    
+    return 
+
+def getTgOffset():
+    DB = NotifierDB()
+    offset = DB.getTgOffset()
+    DB.closeConnection()
+    return offset
+
 # o = NotifierDB()
+# o.createTable()
 #
 # print("Db originale: ")
 # l = o.getSub()
