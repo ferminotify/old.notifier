@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 from random import randint
 from datetime import datetime, time
-from src.databaseOperations import updateTelegramId
+from src.databaseOperations import *
 from src.utility import * 
 
 ###############################################
@@ -40,13 +40,13 @@ class Telegram:
             "body": "Registrazione effettuata correttamente" 
         })
     
-    def register_new_user(self,last_update_id, subs):
+    def register_new_user(self, subs):
         # Check the inbox for new messages (watchout the offest),
         # and if a message is idential to a unique alphanumeric 
         # id (stored in "telegram" column into the database) I 
         # associate the sender's telegram id with my subscriber. 
 
-        inboxMessages = self.bot.getUpdates(offset=last_update_id)
+        inboxMessages = self.bot.getUpdates(offset=getTgOffset())
         for _ in inboxMessages:
             
             for i in subs:
@@ -60,12 +60,12 @@ class Telegram:
                             user_email = i["email"]
                             telegram_id = _["message"]["from"]["id"]
 
-                            last_update_id = _["update_id"]
+                            updateTgOffset(_["update_id"])
 
                             updateTelegramId(user_email, telegram_id)
                             self.user_welcome(telegram_id)
 
-        return last_update_id
+        return
 
 ###############################################
 #                                             #
@@ -75,11 +75,11 @@ class Telegram:
 #                                             #
 ###############################################
 
-def register_new_user(subs, last_update_id):
+def register_new_user(subs):
     # Executes the registration without initializing no objects
     # outside this function
     TG = Telegram()
-    TG.register_new_user(last_update_id, subs)
+    TG.register_new_user(subs)
 
     return 
 
