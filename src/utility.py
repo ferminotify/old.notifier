@@ -8,22 +8,23 @@ from datetime import datetime, time
 #                                             #
 ###############################################
 
-def isEventToday(event):
-    # Check if the events is a all-day and check if it
-    # is today 
-    #
-    # The workday has to be started to return true (7.55)
+def is_event_today(event: dict) -> bool:
+    # Check if the notification has to be sent now (considering the 
+    # current time and the datetime of the event)
     
-    if (event["startDate"] == None) and (event["startDateTime"] == None):
-        # In case there are no events at all today
+    if (not event["startDate"]) and (not event["startDateTime"]):
+        # In case there are no events today
         return False
 
-    if event["startDate"] != None:
-        eventTime = event["startDate"]
+    if event["startDate"]:
+        event_time = event["startDate"]
     else:
-        eventTime = event["startDateTime"]
+        event_time = event["startDateTime"]
+    event_is_today = str(datetime.fromisoformat(event_time))[:10] \
+                    == str(datetime.today())[:10]
+    is_notification_time = time(7,55) < datetime.now().time()
 
-    return ((str(datetime.fromisoformat(eventTime))[:10] == str(datetime.today())[:10]) and time(7,55) < datetime.now().time())
+    return (event_is_today and is_notification_time)
 
 ###############################################
 #                                             #
@@ -39,9 +40,7 @@ def get_registration_mail_subject():
     return "L'ultimo passaggio! - Completamento registrazione Fermi Notifier"
 
 def get_registration_mail_raw(name, verification_code):
-    body = f"Visita questo sito: https://servizi.matteobini.me/users/register/confirmation/{verification_code}"
-    
-    return body
+    return f"Visita questo sito: https://servizi.matteobini.me/users/register/confirmation/{verification_code}"
 
 def get_registration_mail_body(name, verification_code):
     body = ""

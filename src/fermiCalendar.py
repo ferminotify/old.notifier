@@ -52,7 +52,7 @@ def collect_notifications(subs):
                 kwInSubject = any(i.lower() in evt["subject"].lower() for i in usrKw)
                 evtNotInDB = evt["id"] not in sent
                         
-                if kwInSubject and evtNotInDB and isEventToday(evt):
+                if kwInSubject and evtNotInDB and is_event_today(evt):
                     user_events.append(evt)
 
         if len(user_events) > 0:
