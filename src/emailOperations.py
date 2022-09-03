@@ -126,8 +126,9 @@ def pending_registration(subs):
                 "Uid": ["conferma_registrazione"],
                 "isWelcome": False,
                 "Subject": get_registration_mail_subject(),
-                "Raw": get_registration_mail_raw(sub["name"], verification_code),
-                "Body": get_registration_mail_body(sub["name"], verification_code),
+                "Raw": get_registration_mail_raw(verification_code),
+                "Body": get_registration_mail_body(sub["name"], 
+                                                    verification_code),
             }
 
             send_email(email)

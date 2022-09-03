@@ -1,4 +1,5 @@
 from datetime import datetime, time
+from random import choice
 
 ###############################################
 #                                             #
@@ -36,11 +37,12 @@ def is_event_today(event: dict) -> bool:
 
 ###      MESSAGGIO DI CONFERMA ACCOUNT      ###
 
-def get_registration_mail_subject():
+def get_registration_mail_subject() -> str:
     return "L'ultimo passaggio! - Completamento registrazione Fermi Notifier"
 
-def get_registration_mail_raw(name, verification_code):
-    return f"Visita questo sito: https://servizi.matteobini.me/users/register/confirmation/{verification_code}"
+def get_registration_mail_raw(verification_code: str) -> str:
+    return f"Visita questo sito: \
+        servizi.matteobini.me/users/register/confirmation/{verification_code}"
 
 def get_registration_mail_body(name, verification_code):
     body = ""
