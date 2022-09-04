@@ -104,7 +104,7 @@ def pending_registration(subs: list[dict]) -> None:
                 "Uid": ["conferma_registrazione"],
                 "isWelcome": False,
                 "Subject": get_registration_mail_subject(),
-                "Raw": get_mail_raw(verification_code),
+                "Raw": get_mail_raw(),
                 "Body": get_registration_mail_body(sub["name"], 
                                                     verification_code),
             }
@@ -153,9 +153,9 @@ def daily_email(receiver: dict, events: list[dict]) -> None:
         "Receiver": receiver["email"],
         "Uid": [],
         "isWelcome": False,
-        "Subject": get_notification_mail_subject(len(events)),
+        "Subject": get_daily_notification_mail_subject(len(events)),
         "Raw": get_mail_raw(),
-        "Body": get_notification_mail_body(receiver, events)
+        "Body": get_daily_notification_mail_body(receiver, events)
     }
 
     for event in events:
@@ -175,7 +175,7 @@ def last_minute_email(receiver: dict, events: list[dict]) -> None:
         "Uid": [],
         "isWelcome": False,
         "Subject": get_last_minute_notification_mail_subject(),
-        "Raw": get_mail_raw(receiver, events),
+        "Raw": get_mail_raw(),
         "Body": get_last_minute_notification_mail_body(receiver, events)
     }
 
