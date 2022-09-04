@@ -86,7 +86,7 @@ class NotifierDB():
 
         return all_id
 
-    def incrementNumNot(self, user_id):
+    def increment_notification_number(self, user_id):
         self.Cursor.execute(f"""
             UPDATE subscribers
                 SET notifications = notifications + 1
@@ -212,9 +212,9 @@ def getUserSentId(user_id):
 
     return k
 
-def incrementNumNot(user_id):
+def increment_notification_number(user_id):
     DB = NotifierDB()
-    DB.incrementNumNot(user_id)
+    DB.increment_notification_number(user_id)
     DB.closeConnection()
     return
 
@@ -233,7 +233,7 @@ def updateTelegramId(user_email, telegram_id):
 def db_notification(user_id, notified_events):
     for _ in notified_events:
         storeSent(user_id, _["id"])
-        incrementNumNot(user_id)
+        increment_notification_number(user_id)
     return
 
 def updateTgOffset(last_update_id):
