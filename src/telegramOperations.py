@@ -156,7 +156,7 @@ def tg_notification(notification: dict) -> None:
                                                         notification["events"])
 
     elif has_school_started:
-        message["body"]: get_last_minute_message(user, notification["events"])
+        message["body"] = get_last_minute_message(user, notification["events"])
 
     TG = Telegram()
     TG.chat_notification(message)
