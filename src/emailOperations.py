@@ -56,7 +56,7 @@ class Email:
         data.attach(part1)
         data.attach(part2)
         
-        self.client.sendmail("servizi@matteobini.me", receiver, 
+        self.client.sendmail("servizi@matteobini.me", receiver,
                                 data.as_string())
 
         return
@@ -170,7 +170,7 @@ def email_notification(notification: dict) -> None:
                                                         notification["events"])
     
     elif has_school_started:
-        email["Subject"] = get_last_minute_notification_mail_subject(),
+        email["Subject"] = get_last_minute_notification_mail_subject()
         email["Body"] = get_last_minute_notification_mail_body(user, 
                                                         notification["events"])
 
