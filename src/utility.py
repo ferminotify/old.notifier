@@ -111,6 +111,8 @@ def get_daily_notification_mail_subject(n_events: int) -> str:
     return f"Fermi Notifier - Daily notification ({n_events} eventi)"
 
 def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
+
+    # DA RIVEDERE !!! TODO !!! NON HO UTILIZZATO txt_color !!!
     body = ""
 
     with open("emails/Daily-notification/1.htm") as f:
@@ -250,48 +252,55 @@ def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:
 #                                             #
 ###############################################
 
-def get_notification_tg_message(receiver: dict, events: list):
+def get_daily_notification_tg_message(receiver: dict, events: list) -> str:
     body = ""
     body += f"""Ciao {receiver["name"]}, ecco il tuo daily roundup\n"""
     for _ in events:
         body += f"""Nome evento: `{_["subject"]}`\n"""
         body += "*Inizio*: "
         if _["startDate"] != None:
-            body += f"""`{_["startDate"][8:9]}-{_["startDate"][5:6]}-{_["startDate"][:4]}`\n"""
+            body += f"""`{_["startDate"][8:9]}-{_["startDate"][5:6]}-\
+                        {_["startDate"][:4]}`\n"""
         else:
             body += f"""`{_["startDateTime"][11:16]}`\n"""
         
         body += "*Fine*: "
 
         if _["endDate"] != None:
-            body += f"""`{_["endDate"][8:9]}-{_["endDate"][5:6]}-{_["endDate"][:4]}`"""
+            body += f"""`{_["endDate"][8:9]}-{_["endDate"][5:6]}-\
+                        {_["endDate"][:4]}`"""
         else:
             body += f"""`{_["endDateTime"][11:16]}`"""
 
-    body += f"""\n\Buona giornata <3\nFermi Notifier Team.\nservizi@matteobini.me"""
+    body += f"""\n\Buona giornata <3\nFermi Notifier Team.\n\
+                servizi@matteobini.me"""
 
     return body
 
 
-def get_last_minute_message(receiver: dict, events: list):
+def get_last_minute_message(receiver: dict, events: list) -> str:
     # header
-    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato {len(events)} eventi dell'ultimo minuto:\n"""
+    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato {len(events)} \
+                eventi dell'ultimo minuto:\n"""
 
     for _ in events:
         body += f"""*Titolo*: `{_["subject"]}` \n"""
     
         # date/time begin
         if _["startDate"] != None:
-            body += f"""*Inizio*: `{_["startDate"][8:]}-{_["startDate"][5:6]}-{_["startDate"][:3]}` \n"""
+            body += f"""*Inizio*: `{_["startDate"][8:]}-{_["startDate"][5:6]}-\
+                        {_["startDate"][:3]}` \n"""
         else:
             body += f"""*Inizio*: `{_["startDateTime"][11:16]}` \n"""
         
         # date/time end
         if _["endDate"] != None:
-            body += f"""*Fine*: `{_["endDate"][8:]}-{_["endDate"][5:6]}-{_["endDate"][:3]}` \n"""
+            body += f"""*Fine*: `{_["endDate"][8:]}-{_["endDate"][5:6]}-\
+                        {_["endDate"][:3]}` \n"""
         else:
             body += f"""*Fine*: `{_["endDateTime"][11:16]}` \n\n"""
 
     # footer
-    body += f"""Ti auguriamo buon proseguimento di giornata.\n\n_Fermi Notifier Team._ \nservizi@matteobini.me"""
+    body += f"""Ti auguriamo buon proseguimento di giornata.\n\n_Fermi \
+        Notifier Team._ \nservizi@matteobini.me"""
     return body

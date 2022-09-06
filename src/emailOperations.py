@@ -140,69 +140,40 @@ def welcome_notification(subs: list[dict]) -> None:
 ###############################################
 #                                             #
 #                                             #
-#           USER NOTIFICATION EMAILs          #
+#           USER NOTIFICATION EMAIL           #
 #                                             #
 #                                             #
 ###############################################
 
-def daily_email(receiver: dict, events: list[dict]) -> None:
-    # Set up email for daily roundup notification
-
-    email = {
-        "Receiver_id": receiver["id"],
-        "Receiver": receiver["email"],
-        "Uid": [],
-        "isWelcome": False,
-        "Subject": get_daily_notification_mail_subject(len(events)),
-        "Raw": get_mail_raw(),
-        "Body": get_daily_notification_mail_body(receiver, events)
-    }
-
-    for event in events:
-        # Adding up the ids of all events that I 
-        email["Uid"].append(event["id"])
-        
-    send_email(email)
-    return
-
-
-def last_minute_email(receiver: dict, events: list[dict]) -> None:
-
-    # Set up email for last minute notification
-    email = {
-        "Receiver_id": receiver["id"],
-        "Receiver": receiver["email"],
-        "Uid": [],
-        "isWelcome": False,
-        "Subject": get_last_minute_notification_mail_subject(),
-        "Raw": get_mail_raw(),
-        "Body": get_last_minute_notification_mail_body(receiver, events)
-    }
-
-    for _ in events:
-        email["Uid"].append(_["id"])
-
-    send_email(email)
-    return
-
-
 def email_notification(notification: dict) -> None:
     # Check if I have to send the notification now
 
-    # Get and check the current time slot
-    isSchoolHour = datetime.now().time() > time(8,10)
-    isDaily =  time(7,55) < datetime.now().time() < time(8,10)
-
-    receiver = {
+    user = {
         "id": notification["id"],
         "name": notification["name"],
         "email": notification["email"]
     }
+    email = {
+        "Receiver_id": user["id"],
+        "Receiver": user["email"],
+        "Raw": get_mail_raw(),
+        "Uid": [i["id"] for i in notification["events"]],
+        "isWelcome": False,
+    }
 
-    if isDaily:
-        daily_email(receiver, notification["events"])
+    is_dailynotification_time =  time(7,55) < datetime.now().time() < time(8,10)
+    has_school_started = datetime.now().time() > time(8,10)
+
+    if is_dailynotification_time:
+        email["Subject"] = get_daily_notification_mail_subject(),
+        email["Body"] = get_daily_notification_mail_body(user, 
+                                                        notification["events"])
     
-    elif isSchoolHour:
-        last_minute_email(receiver, notification["events"])
+    elif has_school_started:
+        email["Subject"] = get_last_minute_notification_mail_subject(),
+        email["Body"] = get_last_minute_notification_mail_body(user, 
+                                                        notification["events"])
+
+    send_email(email)
 
     return

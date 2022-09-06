@@ -1,120 +1,58 @@
-from src.databaseOperations import getSubscribers, db_notification
-from src.telegramOperations import register_new_user, tg_notification
-from src.emailOperations import *
-from src.fermiCalendar import *
-from src.utility import *
+from src.databaseOperations import get_subscribers, store_notification
+from src.telegramOperations import register_new_telegram_user, tg_notification
+from src.emailOperations import pending_registration, welcome_notification, \
+                                email_notification
+from src.fermiCalendar import collect_notifications
 
-def deliver_notification(n):
-    # This function delegates the operations to
-    # be done when I decide to notify someone: 
-    # send email, send messaage and store the 
-    # notification
-    email_notification(n)
-    tg_notification(n)
-    db_notification(n["id"], n["events"])
+"""
+Main.
+"""
 
+def deliver_notification(notification: dict) -> None:
+    """This function delegates the notification delivery to the appropriate 
+    functions.
+
+    Such as:
+    - Send email notification.
+    - Send telegram notification.
+    - Store the notification in the database.
+
+    Args:
+        notification (list): list of dictionaries containing all the 
+        subscribers that need to be notified and
+        the corresponding events.
+    """
+    email_notification(notification)
+    tg_notification(notification)
+    store_notification(notification["id"], notification["events"])
     return
 
 def main():
+    """Being the main function of the program, it will call all the other 
+    functions.
 
+    Such as:
+    - Handling the pending registrations.
+    - Collecting the notifications.
+    - Deliver the notifications.
+    """
     while True:
-        ###           COLLECT SUBSCRIBERS DATA          ###
-        subs = getSubscribers()
+        # Collect all the subscribers data from
+        # the database
+        subs = get_subscribers()
+
+        pending_registration(subs)  # Send the confirmation email
+        welcome_notification(subs)  # Welcome the new users
+        register_new_telegram_user(subs)
         
-        ###           USER REGISTRATION EVENTS          ###
-        pending_registration(subs)
-        welcome_notification(subs)
-
-        ###        TELEGRAM REGISTRATION EVENTS         ###
-        register_new_user(subs)
-
-        ###        COLLECT & SEND NOTIFICATIONS         ###
+        # Collect all the new notifications
         notifications = collect_notifications(subs)
-        for user in notifications:
-            deliver_notification(user)
 
-    return "merda."
+        for user in notifications:
+            deliver_notification(user)  # Deliver the notifications.
+
+    return "fuck."
 
 
 if __name__ == "__main__":
     main()
-
-'''
-
-    >>> events sample
-{'id': '5v2dkvq7mapnq7mp73610shqmn', 'subject': 'CLASSI 2ACH-2AME-2BCH-2CME-2DME - AULA 443 - CORSO RECUPERO MATEMATICA- PROF.MARCHI', 'desc': None, 'startDate': None, 'startDateTime': '2022-07-15T08:00:00+02:00', 'startTimeZone': 'Europe/Rome', 'endDate': None, 'endDateTime': '2022-07-15T10:00:00+02:00', 'endTimeZone': 'Europe/Rome'}
-{'id': '54ftgsn23eig660jc0khu8cm68', 'subject': 'CLASSI 2AEL-2BEL-2DIN - AULA 443 - CORSO RECUPERO MATEMATICA- PROF.MARCHI', 'desc': None, 'startDate': None, 'startDateTime': '2022-07-15T10:00:00+02:00', 'startTimeZone': 'Europe/Rome', 'endDate': None, 'endDateTime': '2022-07-15T12:00:00+02:00', 'endTimeZone': 'Europe/Rome'}
-
-    >>> sub sample
-{'id': 7, 'name': 'Matteo', 'surname': 'Bini', 'email': 'mail@matteobini.me', 'telegram': 'BiniMatteo', 'tags': ['BINI', '4CIIN', 'OLIMPIADI', 'INFORMATICA'], 'n_not': 0}
-{'id': 3, 'name': 'Ugo', 'surname': 'CgnmPrv', 'email': 'ugo3@matteobini.me', 'telegram': None, 'tags': None, 'n_not': None}
-
-    >>> notifications 
-[
-    {
-        'id': 10, 
-        'name': 'Matteo', 
-        'email': 'mail@matteobini.me', 
-        'tg': 'BiniMatteo', 
-        'events': 
-        [
-            {
-                'id': '175kism1teadmku9if9q5kr969', 
-                'subject': 'CLASSE 3AIIN - AULA 16 -CORSO RECUPERO INGLESE - PROF. MALAVASI MARIA', 
-                'desc': None, 
-                'startDate': None, 
-                'startDateTime': '2022-07-19T12:00:00+02:00', 
-                'startTimeZone': 'Europe/Rome', 
-                'endDate': None, 
-                'endDateTime': '2022-07-19T13:00:00+02:00', 
-                'endTimeZone': 'Europe/Rome'
-            }, 
-            {
-                'id': '6dm3upf29v1j784nqqc028am2f', 
-                'subject': 'CLASSI 3AIIN - 3BIIN - AULA 28 - CORSO RECUPERO INFORMATICA - PROF. XHELILAJ', 
-                'desc': None, 
-                'startDate': None, 
-                'startDateTime': '2022-07-20T10:00:00+02:00', 
-                'startTimeZone': 'Europe/Rome', 
-                'endDate': None, 
-                'endDateTime': '2022-07-20T12:00:00+02:00', 
-                'endTimeZone': 'Europe/Rome'
-            },
-            {
-                'id': '40ig971tehasgqps56dk7bo2mo', 
-                'subject': 'CLASSE 3AIIN - AULA 16 -CORSO RECUPERO INGLESE - PROF. MALAVASI MARIA', 
-                'desc': None, 
-                'startDate': None, 
-                'startDateTime': '2022-07-21T12:00:00+02:00', 
-                'startTimeZone': 'Europe/Rome', 
-                'endDate': None, 
-                'endDateTime': '2022-07-21T13:00:00+02:00', 
-                'endTimeZone': 'Europe/Rome'
-            }, 
-            {
-                'id': '40ig971tehasgqps56dk7bo2mo', 
-                'subject': 'CLASSE 3AIIN - AULA 16 -CORSO RECUPERO INGLESE - PROF. MALAVASI MARIA', 
-                'desc': None, 
-                'startDate': None, 
-                'startDateTime': '2022-07-21T12:00:00+02:00', 
-                'startTimeZone': 'Europe/Rome', 
-                'endDate': None, 
-                'endDateTime': '2022-07-21T13:00:00+02:00', 
-                'endTimeZone': 'Europe/Rome'
-            }, 
-            {
-                'id': '40ig971tehasgqps56dk7bo2mo', 
-                'subject': 'CLASSE 3AIIN - AULA 16 -CORSO RECUPERO INGLESE - PROF. MALAVASI MARIA', 
-                'desc': None, 
-                'startDate': None, 
-                'startDateTime': '2022-07-21T12:00:00+02:00', 
-                'startTimeZone': 'Europe/Rome', 
-                'endDate': None, 
-                'endDateTime': '2022-07-21T13:00:00+02:00', 
-                'endTimeZone': 'Europe/Rome'
-            }
-        ]
-    }
-]
-
-'''
