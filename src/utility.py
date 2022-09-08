@@ -273,7 +273,7 @@ def get_daily_notification_tg_message(receiver: dict, events: list) -> str:
             body += f"""`{_["endDateTime"][11:16]}`"""
 
     body += f"""\n\Buona giornata <3\nFermi Notifier Team.\n\
-                servizi@matteobini.me"""
+                master@ferminotify.me"""
 
     return body
 
@@ -302,5 +302,5 @@ def get_last_minute_message(receiver: dict, events: list) -> str:
 
     # footer
     body += f"""Ti auguriamo buon proseguimento di giornata.\n\n_Fermi \
-        Notifier Team._ \nservizi@matteobini.me"""
+        Notifier Team._ \nmaster@ferminotify.me"""
     return body

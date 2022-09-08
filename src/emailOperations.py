@@ -27,7 +27,7 @@ class Email:
         self.client = smtplib.SMTP(URL, PORT)
 
         self.client.starttls()
-        self.client.login("servizi@matteobini.me", EMAIL_PASSWORD)
+        self.client.login("master@ferminotify.me", EMAIL_PASSWORD)
         
         return
 
@@ -35,8 +35,8 @@ class Email:
     def notifyAdmin(self, new_user: str) -> None:
         msg = EmailMessage()
         msg["Subject"] = "Nuovo iscritto Calendar Notifier"
-        msg["From"] = "Fermi Notifier Team <servizi@matteobini.me>"
-        msg["To"] = "servizi@matteobini.me"
+        msg["From"] = "Fermi Notifier Team <master@ferminotify.me>"
+        msg["To"] = "master@ferminotify.me"
         msg.set_content(f"Salve,\n{new_user} si e' iscritto.\n\n\
                             Fermi Notifier Team")
         self.client.send_message(msg)
@@ -48,7 +48,7 @@ class Email:
                         body: str, html_body: str) -> None:
         data = MIMEMultipart('alternative')
         data["Subject"] = subject
-        data["From"] = "Fermi Notifier Team <servizi@matteobini.me>"
+        data["From"] = "Fermi Notifier Team <master@ferminotify.me>"
         data["To"] = receiver
         
         part1 = MIMEText(body, "plain")
@@ -56,7 +56,7 @@ class Email:
         data.attach(part1)
         data.attach(part2)
         
-        self.client.sendmail("servizi@matteobini.me", receiver,
+        self.client.sendmail("master@ferminotify.me", receiver,
                                 data.as_string())
 
         return
