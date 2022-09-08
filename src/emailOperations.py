@@ -165,7 +165,8 @@ def email_notification(notification: dict) -> None:
     has_school_started = datetime.now().time() > time(8,10)
 
     if is_dailynotification_time:
-        email["Subject"] = get_daily_notification_mail_subject(),
+        email["Subject"] = get_daily_notification_mail_subject(
+                                                len(notification["events"]))
         email["Body"] = get_daily_notification_mail_body(user, 
                                                         notification["events"])
     
