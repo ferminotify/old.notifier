@@ -35,10 +35,10 @@ class Email:
     def notifyAdmin(self, new_user: str) -> None:
         msg = EmailMessage()
         msg["Subject"] = "Nuovo iscritto Calendar Notifier"
-        msg["From"] = "Fermi Notifier Team <master@ferminotify.me>"
+        msg["From"] = "Fermi Notify Team <master@ferminotify.me>"
         msg["To"] = "master@ferminotify.me"
         msg.set_content(f"Salve,\n{new_user} si e' iscritto.\n\n\
-                            Fermi Notifier Team")
+                            Fermi Notify Team")
         self.client.send_message(msg)
         
         return
@@ -48,7 +48,7 @@ class Email:
                         body: str, html_body: str) -> None:
         data = MIMEMultipart('alternative')
         data["Subject"] = subject
-        data["From"] = "Fermi Notifier Team <master@ferminotify.me>"
+        data["From"] = "Fermi Notify Team <master@ferminotify.me>"
         data["To"] = receiver
         
         part1 = MIMEText(body, "plain")
