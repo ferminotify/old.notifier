@@ -267,8 +267,8 @@ def get_daily_notification_tg_message(receiver: dict, events: list) -> str:
 
 def get_last_minute_message(receiver: dict, events: list) -> str:
     # header
-    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato {len(events)} \
-                eventi dell'ultimo minuto:\n"""
+    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato {len(events)} """
+    body += f"event{'i' if len(events) > 1 else 'o'} dell'ultimo minuto:\n"
 
     for _ in events:
         body += f"""*Titolo*: `{_["subject"]}` \n"""
