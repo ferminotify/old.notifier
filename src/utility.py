@@ -23,7 +23,7 @@ def is_event_today(event: dict) -> bool:
         event_time = event["startDateTime"]
     event_is_today = str(datetime.fromisoformat(event_time))[:10] \
                     == str(datetime.today())[:10]
-    is_notification_time = time(7,55) < datetime.now().time()
+    is_notification_time = time(6,00) < datetime.now().time()
 
     return (event_is_today and is_notification_time)
 

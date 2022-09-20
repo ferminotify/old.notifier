@@ -161,8 +161,8 @@ def email_notification(notification: dict) -> None:
         "isWelcome": False,
     }
 
-    is_dailynotification_time =  time(7,55) < datetime.now().time() < time(8,10)
-    has_school_started = datetime.now().time() > time(8,10)
+    is_dailynotification_time =  time(6,00) < datetime.now().time() < time(6,15)
+    has_school_started = datetime.now().time() > time(6,15)
 
     if is_dailynotification_time:
         email["Subject"] = get_daily_notification_mail_subject(
