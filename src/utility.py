@@ -38,6 +38,14 @@ def get_event_color() -> str:
 
     return choice(colors)
 
+def get_pronominal_particle(gender) -> str:
+    if gender == 'M':
+        return 'o'
+    elif gender == 'F':
+        return 'a'
+    else:
+        return 'ǝ'
+
 def get_mail_raw() -> str:
     return "Ci sono nuovi eventi che ti coinvolgono sul calendario giornaliero"
 
@@ -89,15 +97,30 @@ def get_registration_mail_body(name: str, verification_code: str) -> str:
 def get_welcome_mail_subject() -> str:
     return "Fermi Notify - Welcome!"
 
-def get_welcome_mail_body(username: str) -> str:
+def get_welcome_mail_body(user: dict) -> str:
     body = ""
     
     with open("emails/Welcome/01.htm") as f:
         body += f.read()
 
-    body += username
+    body += user["name"]
 
     with open("emails/Welcome/02.htm") as f:
+        body += f.read()
+
+    body += get_pronominal_particle(user["gender"])
+
+    with open("emails/Welcome/03.htm") as f:
+        body += f.read()
+
+    body += get_pronominal_particle(user["gender"])
+    
+    with open("emails/Welcome/04.htm") as f:
+        body += f.read()
+
+    body += get_pronominal_particle(user["gender"])
+
+    with open("emails/Welcome/05.htm") as f:
         body += f.read()
 
     return body
