@@ -42,11 +42,14 @@ class Telegram:
         Args:
             message (dict): A dictionary containing the receiver's id and the message to be sent.
         """
-        self.bot.sendMessage(
+        try:
+            self.bot.sendMessage(
             message["receiver"], 
             message["body"], 
             parse_mode='MARKDOWN'
-        )
+            )
+        except:
+            pass
 
         return
 

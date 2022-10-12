@@ -1,4 +1,5 @@
 import os
+import time
 from dotenv import load_dotenv
 import psycopg2
 
@@ -33,13 +34,18 @@ class NotifierDB():
         PASSWORD = os.getenv('PASSWORD')
         PORT_ID = os.getenv('PORT_ID')
 
-        self.connection = psycopg2.connect(
-            host = HOSTNAME,
-            dbname = DATABASE,
-            user = USERNAME,
-            password = PASSWORD,
-            port = PORT_ID,
-        )
+        try:
+            self.connection = psycopg2.connect(
+                host = HOSTNAME,
+                dbname = DATABASE,
+                user = USERNAME,
+                password = PASSWORD,
+                port = PORT_ID,
+            )
+        except:
+            time.sleep(30)
+            NotifierDB()
+            
 
         self.cursor = self.connection.cursor()
 
