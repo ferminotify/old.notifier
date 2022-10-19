@@ -71,10 +71,10 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
         for evt in events:
             
             if usr_kw:
-                kw_in_subject = any(((kw.lower() + " ") in (evt["subject"].lower() + " ")
-                                    for kw in usr_kw)) or \
-                                    any(((kw.lower() + ",") in 
-                                    (evt["subject"].lower() + " ") for kw in usr_kw))
+                event_title = "".join(c for c in evt["subject"].lower()
+                        if ((c.isalpha() or c.isdecimal()) or c == ' ')) + " "
+                kw_in_subject = any(((kw.lower() + " ") in event_title
+                                    for kw in usr_kw))
                 # I append a space to the keyword so, for example, the user 
                 # with the tag 4E doesn't receive the information about the 
                 # events of 4EAU
