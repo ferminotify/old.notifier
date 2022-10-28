@@ -44,7 +44,7 @@ def main():
         pending_registration(subs)  # Send the confirmation email
         welcome_notification(subs)  # Welcome the new users
 	try:
-            register_new_telegram_user(subs)
+        register_new_telegram_user(subs)
 	except:
 	    pass
         
