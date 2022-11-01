@@ -63,7 +63,7 @@ class Telegram:
         """
         self.chat_notification(message = {
             "receiver": telegram_id, 
-            "body": "Registrazione effettuata correttamente" 
+            "body": "Registrazione effettuata correttamente. \nAbilita la notifica via telegram nella tua dashboard (https://www.ferminotify.me/dashboard)" 
         })
         return
     
