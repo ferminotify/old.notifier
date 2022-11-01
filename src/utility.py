@@ -60,7 +60,7 @@ def get_mail_raw() -> str:
 ###      ACCOUNT CONFIRMATION EMAIL      ###
 
 def get_registration_mail_subject() -> str:
-    return "Fermi Notify - Confirm registration"
+    return "Fermi Notify - Conferma la registrazione"
 
 def get_registration_mail_body(name: str, verification_code: str) -> str:
     body = ""
@@ -194,7 +194,7 @@ def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
 ###    LAST MINUTE EMAIL NOTIFICATION    ###
 
 def get_last_minute_notification_mail_subject():
-    return "Fermi Notify - Last Minute Notification"
+    return "Fermi Notify - Last minute notification"
 
 def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:
     body = ""

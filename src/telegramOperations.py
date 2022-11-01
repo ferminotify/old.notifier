@@ -87,10 +87,10 @@ class Telegram:
                 # if I didn't get messages from groups, last one 
                 # check for the message that i got from my new user)
                 if "my_chat_member" not in message.keys():
-                    if ("new_chat_participant" not in message["message"]) and \
-                        ("left_chat_participant" not in message["message"]) and \
-                        ("document" not in message["message"].keys()):
-                        try:
+                    try:
+                        if ("new_chat_participant" not in message["message"]) and \
+                            ("left_chat_participant" not in message["message"]) and \
+                            ("document" not in message["message"].keys()):
                             if message["message"]["text"] == sub["telegram"]:
                                 user_email = sub["email"]
                                 telegram_id = message["message"]["from"]["id"]
@@ -99,11 +99,10 @@ class Telegram:
 
                                 update_telegram_id(user_email, telegram_id)
                                 self.user_welcome(telegram_id)
-                        except:
-                            print("[TELEGRAM NOTIFIER] There's been an error \
-                                    registering the user that has sent the \
-                                    following messsage:")
-                            print(message)
+                    except:
+                        print("[TELEGRAM NOTIFIER] Ho ciapato un errore,\
+                            fortunatamente. Ecco il messaggio che l'ha causato:")
+                        print(message)
 
         return
 

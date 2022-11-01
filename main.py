@@ -22,8 +22,19 @@ def deliver_notification(notification: dict) -> None:
         subscribers that need to be notified and
         the corresponding events.
     """
-    email_notification(notification)
-    tg_notification(notification)
+    if notification["n_pref"] == 3:
+        email_notification(notification)
+        tg_notification(notification)
+
+    elif notification["n_pref"] == 2:
+        email_notification(notification)
+
+    elif notification["n_pref"] == 1:
+        tg_notification(notification)
+
+    elif notification["n_pref"] == 0:
+        pass
+    
     store_notification(notification["id"], notification["events"])
     return
 
@@ -43,10 +54,7 @@ def main():
 
         pending_registration(subs)  # Send the confirmation email
         welcome_notification(subs)  # Welcome the new users
-        try:
-            register_new_telegram_user(subs)
-        except:
-            pass
+        register_new_telegram_user(subs)
         
         # Collect all the new notifications
         notifications = collect_notifications(subs)

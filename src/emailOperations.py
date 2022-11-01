@@ -17,9 +17,18 @@ from src.databaseOperations import increment_notification_number
 #                                             #
 ###############################################
 
+EMAIL_SENDER_INDEX = 0
+
 class Email:
 
+    sender_emails = [
+        "master@ferminotify.me",
+        "master1@ferminotify.me",
+        "master2@ferminotify.me"
+    ]
+
     def __init__(self):
+        global EMAIL_SENDER_INDEX
         load_dotenv()
         EMAIL_PASSWORD = os.getenv('EMAIL_SERVICE_PASSWORD')
         PORT = os.getenv('EMAIL_SERVICE_PORT')
@@ -27,28 +36,38 @@ class Email:
         self.client = smtplib.SMTP(URL, PORT)
 
         self.client.starttls()
-        self.client.login("master@ferminotify.me", EMAIL_PASSWORD)
+        self.client.login(self.sender_emails[EMAIL_SENDER_INDEX], EMAIL_PASSWORD)
         
         return
 
+    def __update_sender_index(self) -> None:
+        global EMAIL_SENDER_INDEX
+
+        if EMAIL_SENDER_INDEX == 2:
+            EMAIL_SENDER_INDEX = 0
+        else:
+            EMAIL_SENDER_INDEX += 1
 
     def notify_admin(self, new_user: str) -> None:
         msg = EmailMessage()
         msg["Subject"] = "Nuovo iscritto Calendar Notifier"
-        msg["From"] = "Fermi Notify Team <master@ferminotify.me>"
-        msg["To"] = "master@ferminotify.me"
+        msg["From"] = "Fermi Notify Team <master3@ferminotify.me>"
+        msg["To"] = "team@ferminotify.me"
         msg.set_content(f"Salve,\n{new_user} si e' iscritto.\n\n\
                             Fermi Notify Team")
         self.client.send_message(msg)
+        self.__update_sender_index()
         
         return
 
 
     def sendHTMLMail(self, receiver: str, subject: str, 
                         body: str, html_body: str) -> None:
+        global EMAIL_SENDER_INDEX
         data = MIMEMultipart('alternative')
         data["Subject"] = subject
-        data["From"] = "Fermi Notify Team <master@ferminotify.me>"
+        data["From"] = \
+            f"Fermi Notify Team <{self.sender_emails[EMAIL_SENDER_INDEX]}>"
         data["To"] = receiver
         
         part1 = MIMEText(body, "plain")
@@ -56,8 +75,9 @@ class Email:
         data.attach(part1)
         data.attach(part2)
         
-        self.client.sendmail("master@ferminotify.me", receiver,
+        self.client.sendmail(self.sender_emails[EMAIL_SENDER_INDEX], receiver,
                                 data.as_string())
+        self.__update_sender_index()
 
         return
 

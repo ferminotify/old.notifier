@@ -89,6 +89,7 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
                 "id": sub["id"],
                 "name": sub["name"],
                 "email": sub["email"],
+                "n_pref": sub["n_pref"],
                 "telegram": sub["telegram"],
                 "events": user_events
             })
