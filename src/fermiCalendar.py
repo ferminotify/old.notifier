@@ -69,10 +69,12 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
         user_events = []
 
         for evt in events:
-            
             if usr_kw:
-                event_title = "".join(c for c in evt["subject"].lower()
+                try:
+                    event_title = "".join(c for c in evt["subject"].lower()
                         if ((c.isalpha() or c.isdecimal()) or c == ' ')) + " "
+                except:
+                    pass
                 kw_in_subject = any(((kw.lower() + " ") in event_title
                                     for kw in usr_kw))
                 # I append a space to the keyword so, for example, the user 
