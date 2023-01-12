@@ -1,5 +1,5 @@
 import pandas as pd
-from src.databaseOperations import get_user_sent_id
+from src.databaseOperations import get_all_sent_id
 from src.utility import is_event_today
 
 """
@@ -61,11 +61,23 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
         the corresponding events.
     """
     events = get_events()
+
+    # print("got events")
+
     notifications = []
     
+    c = 0
+    all_ids = get_all_sent_id()
     for sub in subs:
+        print("start user", c)
         usr_kw = sub["tags"]
-        sent = get_user_sent_id(sub["id"])
+        
+        # get the sent events ids
+        sent = []
+        for i in all_ids:
+            if str(i[1]) == str(sub["id"]):
+                sent.append(i[2])
+
         user_events = []
 
         for evt in events:
@@ -82,7 +94,7 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
                 # events of 4EAU
                 
                 evt_not_in_db = evt["id"] not in sent
-                        
+
                 if kw_in_subject and evt_not_in_db and is_event_today(evt):
                     user_events.append(evt)
 
@@ -95,5 +107,8 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
                 "telegram": sub["telegram"],
                 "events": user_events
             })
+        
+        print("end user", c)
+        c+=1
 
     return notifications

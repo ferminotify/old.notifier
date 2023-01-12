@@ -86,7 +86,7 @@ class NotifierDB():
 
         return all_users
 
-    def get_user_sent_id(self, user_id: int) -> list[int]:
+    def get_all_sent_id(self) -> list[int]:
         """Gets all the ids of sent notifications to a user.
 
         Args:
@@ -99,12 +99,7 @@ class NotifierDB():
         response = self.cursor.fetchall()
         self.connection.commit()
 
-        all_id = []
-        for i in response:
-            if str(i[1]) == str(user_id):
-                all_id.append(i[2])
-
-        return all_id
+        return response
 
     def increment_notification_number(self, user_id: int) -> None:
         """increment the number of notifications of a user.
@@ -193,7 +188,7 @@ def store_sent_event(user_id: int, event_id: str) -> None:
 
     return
 
-def get_user_sent_id(user_id: int) -> list[int]:
+def get_all_sent_id() -> list[int]:
     """Get the id of the sent notifications of a user.
 
     Args:
@@ -203,7 +198,7 @@ def get_user_sent_id(user_id: int) -> list[int]:
         list: list of the id of the sent notifications of the user.
     """
     DB = NotifierDB()
-    k = DB.get_user_sent_id(user_id)
+    k = DB.get_all_sent_id()
     DB.close_connection()
 
     return k

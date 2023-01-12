@@ -55,7 +55,7 @@ def main():
         pending_registration(subs)  # Send the confirmation email
         welcome_notification(subs)  # Welcome the new users
         register_new_telegram_user(subs)
-        
+
         # Collect all the new notifications
         notifications = collect_notifications(subs)
 
