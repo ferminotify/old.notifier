@@ -146,47 +146,50 @@ def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
     with open("emails/Daily-notification/02.htm") as f:
         body += f.read()
 
+    body += "è previsto <b>" if len(events) == 1 else "sono previsti <b>"
+
     body += str(len(events))
 
     with open("emails/Daily-notification/03.htm") as f:
-            body += f.read()
+        body += f.read()
+
+    body += "o" if len(events) == 1 else "i"
+
+    with open("emails/Daily-notification/04.htm") as f:
+        body += f.read()
 
     for i in events:
         card_color = get_event_color()
 
-        with open("emails/Daily-notification/04.htm") as f:
+        with open("emails/Daily-notification/05.htm") as f:
             body += f.read()
 
         body += card_color
 
-        with open("emails/Daily-notification/05.htm") as f:
+        with open("emails/Daily-notification/06.htm", encoding="utf8") as f:
             body += f.read()
 
         body += i["subject"]
 
-        with open("emails/Daily-notification/06.htm") as f:
-            body += f.read()
-
-        if i["startDate"]:
-            body += f"""{i["startDate"][8:9]}-{i["startDate"][5:6]}"""
-            body += f"""-{i["startDate"][:4]}"""
+        # if event has same start and end date/time (es. entrata posticipata)
+        if i["startDate"] == i["endDate"] and i["startDateTime"] == i["endDateTime"]:
+            with open("emails/Daily-notification/07b.htm", encoding="utf8") as f:
+                body += f.read()
+            body += i["startDateTime"][11:16] if i["startDateTime"] else "/".join(i["startDate"].split("-")[::-1])
+        # if event has same start date but different end date/time
         else:
-            body += f"""{i["startDateTime"][11:16]}"""
-
-        with open("emails/Daily-notification/07.htm") as f:
-            body += f.read()
-
-        if i["endDate"]:
-            body += f"""{i["endDate"][8:9]}-{i["endDate"][5:6]}"""
-            body += f"""-{i["endDate"][:4]}"""
-        else:
-            body += f"""{i["endDateTime"][11:16]}"""
+            with open("emails/Daily-notification/07a.htm", encoding="utf8") as f:
+                body += f.read()
+            body += i["startDateTime"][11:16] if i["startDateTime"] else "/".join(i["startDate"].split("-")[::-1])
+            with open("emails/Daily-notification/07a1.htm", encoding="utf8") as f:
+                body += f.read()
+            body += i["endDateTime"][11:16] if i["endDateTime"] else "/".join(i["endDate"].split("-")[::-1])
 
         with open("emails/Daily-notification/08.htm") as f:
             body += f.read()
         
     with open("emails/Daily-notification/09.htm") as f:
-            body += f.read()
+        body += f.read()
 
     return body
 
@@ -198,56 +201,53 @@ def get_last_minute_notification_mail_subject():
 
 def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:
     body = ""
-    
-    with open("emails/Last-minute-notification/01.htm") as f:
-        body += f.read()
 
+    with open("emails/Last-minute-notification/01.htm", encoding="utf8") as f:
+        body += f.read()
+    
     body += receiver["name"]
 
-    with open("emails/Last-minute-notification/02.htm") as f:
+    with open("emails/Last-minute-notification/02.htm", encoding="utf8") as f:
         body += f.read()
 
-    body += f"{len(events)} event{'i' if len(events) > 1 else 'o'}"
+    body += str(len(events))
+    body += "</b> evento" if len(events) == 1 else "</b> eventi"
 
-    with open("emails/Last-minute-notification/03.htm") as f:
+    with open("emails/Last-minute-notification/03.htm", encoding="utf8") as f:
         body += f.read()
 
     for i in events:
         card_color = get_event_color()
 
-        with open("emails/Last-minute-notification/04.htm") as f:
+        with open("emails/Last-minute-notification/04.htm", encoding="utf8") as f:
             body += f.read()
-        
+
         body += card_color
 
-        with open("emails/Last-minute-notification/05.htm") as f:
+        with open("emails/Last-minute-notification/05.htm", encoding="utf8") as f:
             body += f.read()
 
         body += i["subject"]
 
-        with open("emails/Last-minute-notification/06.htm") as f:
-            body += f.read()
-
-        if i["startDate"]:
-            body += f"""{i["startDate"][8:9]}-{i["startDate"][5:6]}-\
-                {i["startDate"][:4]}"""
+        # if event has same start and end date/time (es. entrata posticipata)
+        if i["startDate"] == i["endDate"] and i["startDateTime"] == i["endDateTime"]:
+            with open("emails/Last-minute-notification/06b.htm", encoding="utf8") as f:
+                body += f.read()
+            body += i["startDateTime"][11:16] if i["startDateTime"] else "/".join(i["startDate"].split("-")[::-1])
+        # if event has same start date but different end date/time
         else:
-            body += f"""{i["startDateTime"][11:16]}"""
+            with open("emails/Last-minute-notification/06a.htm", encoding="utf8") as f:
+                body += f.read()
+            body += i["startDateTime"][11:16] if i["startDateTime"] else "/".join(i["startDate"].split("-")[::-1])
+            with open("emails/Last-minute-notification/06a1.htm", encoding="utf8") as f:
+                body += f.read()
+            body += i["endDateTime"][11:16] if i["endDateTime"] else "/".join(i["endDate"].split("-")[::-1])
 
-        with open("emails/Last-minute-notification/07.htm") as f:
+        with open("emails/Last-minute-notification/07.htm", encoding="utf8") as f:
             body += f.read()
         
-        if i["endDate"]:
-            body += f"""{i["endDate"][8:9]}-{i["endDate"][5:6]}-\
-                {i["endDate"][:4]}"""
-        else:
-            body += f"""{i["endDateTime"][11:16]}"""
-
-        with open("emails/Last-minute-notification/08.htm") as f:
+    with open("emails/Last-minute-notification/08.htm", encoding="utf8") as f:
             body += f.read()
-    
-    with open("emails/Last-minute-notification/09.htm") as f:
-        body += f.read()
 
     return body
 
@@ -267,20 +267,22 @@ def get_daily_notification_tg_message(receiver: dict, events: list) -> str:
 
     for _ in events:
         body += f"""\n· `{_["subject"]}`"""
-        body += "\n· *Inizio* ⏰ "
-        if _["startDate"] != None:
-            body += f"""`{_["startDate"][8:9]}-{_["startDate"][5:6]}-\
-                        {_["startDate"][:4]}`"""
-        else:
-            body += f"""`{_["startDateTime"][11:16]}`"""
 
-        body += "\n· *Fine* 🔚 "
-
-        if _["endDate"] != None:
-            body += f"""`{_["endDate"][8:9]}-{_["endDate"][5:6]}-\
-                        {_["endDate"][:4]}`\n"""
+        # if event has same start and end date/time (es. entrata posticipata)
+        if _["startDate"] == _["endDate"] and _["startDateTime"] == _["endDateTime"]:
+            if _["startDateTime"] != None:
+                body += "\n· *Orario* 📅 "
+            else:
+                body += "\n· *Data* 📅 "
+            body += _["startDateTime"][11:16] if _["startDateTime"] else "/".join(_["startDate"].split("-")[::-1])
+        # if event has same start date but different end date/time
         else:
-            body += f"""`{_["endDateTime"][11:16]}`\n"""
+            body += "\n· *Inizio* ⏰ "
+            body += _["startDateTime"][11:16] if _["startDateTime"] else "/".join(_["startDate"].split("-")[::-1])
+            body += "\n· *Fine* 🔚 "
+            body += _["endDateTime"][11:16] if _["endDateTime"] else "/".join(_["endDate"].split("-")[::-1])
+        
+        body += "\n"
         
     body += "\nBuona giornata <3\n_Fermi Notify Team_\n"
     body += "master@ferminotify.me"
@@ -290,27 +292,27 @@ def get_daily_notification_tg_message(receiver: dict, events: list) -> str:
 
 def get_last_minute_message(receiver: dict, events: list) -> str:
     # header
-    body =  f"""Ciao {receiver["name"]}.\nAbbiamo trovato {len(events)} """
+    body =  f"""Ciao {receiver["name"]},\nabbiamo trovato {len(events)} """
     body += f"event{'i' if len(events) > 1 else 'o'} dell'ultimo minuto:\n"
 
     for _ in events:
-        body += f"""*Titolo*: `{_["subject"]}` \n"""
-    
-        # date/time begin
-        if _["startDate"] != None:
-            body += f"""*Inizio*: `{_["startDate"][8:]}-"""
-            body += f"""{_["startDate"][5:6]}-{_["startDate"][:3]}`\n"""
-        else:
-            body += f"""*Inizio*: `{_["startDateTime"][11:16]}` \n"""
-        
-        # date/time end
-        if _["endDate"] != None:
-            body += f"""*Fine*: `{_["endDate"][8:]}-"""
-            body += f"""{_["endDate"][5:6]}-{_["endDate"][:3]}` \n"""
-        else:
-            body += f"""*Fine*: `{_["endDateTime"][11:16]}` \n\n"""
+        body += f"""\n· `{_["subject"]}`"""
 
+        # if event has same start and end date/time (es. entrata posticipata)
+        if _["startDate"] == _["endDate"] and _["startDateTime"] == _["endDateTime"]:
+            if _["startDateTime"] != None:
+                body += "\n· *Orario* 📅 "
+            else:
+                body += "\n· *Data* 📅 "
+            body += _["startDateTime"][11:16] if _["startDateTime"] else "/".join(_["startDate"].split("-")[::-1])
+        # if event has same start date but different end date/time
+        else:
+            body += "\n· *Inizio* ⏰ "
+            body += _["startDateTime"][11:16] if _["startDateTime"] else "/".join(_["startDate"].split("-")[::-1])
+            body += "\n· *Fine* 🔚 "
+            body += _["endDateTime"][11:16] if _["endDateTime"] else "/".join(_["endDate"].split("-")[::-1])
+        body += "\n"
     # footer
-    body += f"""Ti auguriamo buon proseguimento di giornata.\n\n"""
+    body += f"""\nTi auguriamo buon proseguimento di giornata.\n"""
     body += f"""_Fermi Notify Team_ \nmaster@ferminotify.me"""
     return body
