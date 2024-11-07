@@ -2,6 +2,8 @@ import os
 import time
 from dotenv import load_dotenv
 import psycopg2
+from src.logger import Logger
+logger = Logger()
 
 """
 Summary of all the operations involving the database.
@@ -23,11 +25,9 @@ class NotifierDB():
         cursor (psycopg2.extensions.cursor): cursor to the database.
     """
 
-
     def __init__(self):
-        # Inizializzatore della connessione
-
         load_dotenv()
+        # Inizializzatore della connessione
         HOSTNAME = os.getenv('HOSTNAME')
         DATABASE = os.getenv('DATABASE')
         USERNAME = os.getenv('USERNAME')
@@ -36,26 +36,25 @@ class NotifierDB():
 
         try:
             self.connection = psycopg2.connect(
-                host = HOSTNAME,
-                dbname = DATABASE,
-                user = USERNAME,
-                password = PASSWORD,
-                port = PORT_ID,
+                host=HOSTNAME,
+                dbname=DATABASE,
+                user=USERNAME,
+                password=PASSWORD,
+                port=PORT_ID,
             )
-        except:
+            logger.debug("Database connection established.")
+        except Exception as e:
+            logger.error(f"Error connecting to the database: {e}")
             time.sleep(30)
             NotifierDB()
-            
 
         self.cursor = self.connection.cursor()
 
     def close_connection(self) -> None:
-        """Closes the connection to the database.
-        """
-
+        """Closes the connection to the database."""
         self.connection.close()
+        logger.debug("Database connection closed.")
         return
-
 
     def get_subscribers(self) -> list[tuple]:
         """Returns a list of all the subscribers in the database as a list of 
@@ -64,10 +63,10 @@ class NotifierDB():
         Returns:
             list: list of tuples containing all the subscribers.
         """
-
         self.cursor.execute(f"SELECT * FROM subscribers")
         fetched_subscribers = self.cursor.fetchall()
         self.connection.commit()
+        logger.debug("Fetched all subscribers from the database.")
 
         all_users = []
         for i in fetched_subscribers:
@@ -98,11 +97,12 @@ class NotifierDB():
         self.cursor.execute("SELECT * FROM sent;")
         response = self.cursor.fetchall()
         self.connection.commit()
+        logger.debug("Fetched all sent notification IDs from the database.")
 
         return response
 
     def increment_notification_number(self, user_id: int) -> None:
-        """increment the number of notifications of a user.
+        """Increment the number of notifications of a user.
 
         Args:
             user_id (int): id of the user.
@@ -113,6 +113,7 @@ class NotifierDB():
             WHERE id = {user_id};
         """)
         self.connection.commit()
+        logger.debug(f"Incremented notification number for user ID {user_id}.")
         
         return
 
@@ -129,6 +130,7 @@ class NotifierDB():
             WHERE subscribers.email = '{user_email}';
         """)
         self.connection.commit()
+        logger.debug(f"Updated telegram ID for user with email {user_email}.")
         return
 
     def store_event(self, user_id: int, event_id: str) -> None:
@@ -141,6 +143,7 @@ class NotifierDB():
         pattern = "INSERT INTO sent(sub_id, evt) VALUES (%s, %s)"
         self.cursor.execute(pattern, (user_id, event_id))
         self.connection.commit()
+        logger.debug(f"Stored event ID {event_id} for user ID {user_id}.")
         
         return
 
@@ -153,6 +156,7 @@ class NotifierDB():
         self.cursor.execute(f"SELECT * FROM stuff")
         response = self.cursor.fetchall()
         self.connection.commit()
+        logger.debug("Fetched telegram offset from the database.")
         offset = ""
 
         for i in response:
@@ -172,6 +176,7 @@ class NotifierDB():
                 SET value = '{last_update_id}'
             WHERE key = 'telegram_offset';""")
         self.connection.commit()
+        logger.debug(f"Updated telegram offset to {last_update_id}.")
         
         return
 
@@ -185,6 +190,7 @@ def store_sent_event(user_id: int, event_id: str) -> None:
     DB = NotifierDB()
     DB.store_event(user_id, event_id)
     DB.close_connection()
+    logger.info(f"Stored sent event ID {event_id} for user ID {user_id}.")
 
     return
 
@@ -200,6 +206,7 @@ def get_all_sent_id() -> list[int]:
     DB = NotifierDB()
     k = DB.get_all_sent_id()
     DB.close_connection()
+    logger.info("Fetched all sent notification IDs.")
 
     return k
 
@@ -212,6 +219,7 @@ def increment_notification_number(user_id: int) -> None:
     DB = NotifierDB()
     DB.increment_notification_number(user_id)
     DB.close_connection()
+    logger.info(f"Incremented notification number for user ID {user_id}.")
     return
 
 def get_subscribers() -> list[dict]:
@@ -223,6 +231,7 @@ def get_subscribers() -> list[dict]:
     DB = NotifierDB()
     k = DB.get_subscribers()
     DB.close_connection()
+    logger.info("Fetched all subscribers.")
 
     return k
 
@@ -236,6 +245,7 @@ def update_telegram_id(user_email: str, telegram_id: any) -> None:
     DB = NotifierDB()
     DB.update_telegram_id(user_email, telegram_id)
     DB.close_connection()
+    logger.info(f"Updated telegram ID for user with email {user_email}.")
     return
 
 def store_notification(user_id: int, notified_events: list[dict]) -> None:
@@ -247,8 +257,9 @@ def store_notification(user_id: int, notified_events: list[dict]) -> None:
         notified_events (list): list of the notified events.
     """
     for event in notified_events:
-        store_sent_event(user_id, event["id"])
+        store_sent_event(user_id, event["uid"])
         increment_notification_number(user_id)
+    logger.info(f"Stored notifications for user ID {user_id}.")
     return
 
 def update_tg_offset(last_update_id: any) -> None:
@@ -260,6 +271,7 @@ def update_tg_offset(last_update_id: any) -> None:
     DB = NotifierDB()
     DB.update_tg_offset(last_update_id)
     DB.close_connection()
+    logger.info(f"Updated telegram offset to {last_update_id}.")
     
     return 
 
@@ -272,6 +284,7 @@ def get_tg_offset() -> str:
     DB = NotifierDB()
     offset = DB.get_tg_offset()
     DB.close_connection()
+    logger.info("Fetched telegram offset.")
 
     if offset == '':
         return

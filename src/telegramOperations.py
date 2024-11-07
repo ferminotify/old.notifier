@@ -2,8 +2,14 @@ import os
 from datetime import datetime, time
 from dotenv import load_dotenv
 import telepot
+from urllib3.exceptions import ReadTimeoutError
+from time import sleep
+
+from src.logger import Logger
 from src.databaseOperations import get_tg_offset, update_tg_offset, update_telegram_id
 from src.utility import get_daily_notification_tg_message, get_last_minute_message
+
+logger = Logger()
 
 """
 Summary of all the operations involving Telegram.
@@ -35,23 +41,23 @@ class Telegram:
         load_dotenv()
         self.API_KEY = os.getenv('TELEGRAM_API_KEY')
         self.bot = telepot.Bot(self.API_KEY)
+        logger.debug("Telegram bot initialized with API key.")
 
     def chat_notification(self, message: dict) -> None:
-        """Sends a notification to the chat trough the bot.
+        """Sends a notification to the chat through the bot.
 
         Args:
             message (dict): A dictionary containing the receiver's id and the message to be sent.
         """
         try:
             self.bot.sendMessage(
-            message["receiver"], 
-            message["body"], 
-            parse_mode='MARKDOWN'
+                message["receiver"], 
+                message["body"], 
+                parse_mode='MARKDOWN'
             )
-        except:
-            pass
-
-        return
+            logger.info(f"Notification sent to {message['receiver']}.")
+        except Exception as e:
+            logger.error(f"Failed to send notification: {e}")
 
     def user_welcome(self, telegram_id: str) -> None:
         """Sends a welcome confirmation message to the user to notify him
@@ -65,22 +71,43 @@ class Telegram:
             "receiver": telegram_id, 
             "body": "Registrazione effettuata correttamente. \nAbilita la notifica via telegram nella tua dashboard (https://www.ferminotify.me/dashboard)" 
         })
-        return
-    
+        logger.info(f"Welcome message sent to {telegram_id}.")
+
+    def safe_get_updates(self):
+        retries = 3
+        
+        for i in range(retries):
+            try:
+                logger.debug(f"Attempt {i+1} to get updates.")
+                updates = self.bot.getUpdates(offset=get_tg_offset())
+                logger.debug("Successfully retrieved updates.")
+                return updates
+            except ReadTimeoutError:
+                logger.warning(f"ReadTimeoutError on attempt {i+1}.")
+                if i < retries - 1:
+                    sleep(2 ** i)  # Exponential backoff
+                    logger.debug(f"Retrying after {2 ** i} seconds.")
+                else:
+                    logger.error("Max retries reached. Raising exception.")
+                    raise
+
     def register_new_telegram_user(self, subs: list[dict]) -> None:
         """Associates a telegram account to a subscriber of the service
         using a unique id.
 
-        The id is recieved in the inbox of the telegram bot and if
+        The id is received in the inbox of the telegram bot and if
         it is present in the database, the user is registered.
 
         Args:
             subs (list): A list of dictionaries containing the user's info.
         """
-
-        inbox_messages = self.bot.getUpdates(offset=get_tg_offset())
+        try:
+            inbox_messages = self.safe_get_updates()
+        except Exception as e:
+            logger.error(f"Error getting updates: {e}")
+            return
+        # inbox_messages = self.bot.getUpdates(offset=get_tg_offset())
         for message in inbox_messages:
-            
             for sub in subs:
                 # The next lines I check if I got messages from any
                 # new user or some stranger (first 2 lines to check 
@@ -96,15 +123,12 @@ class Telegram:
                                 telegram_id = message["message"]["from"]["id"]
 
                                 update_tg_offset(message["update_id"])
-
                                 update_telegram_id(user_email, telegram_id)
                                 self.user_welcome(telegram_id)
-                    except:
-                        print("[TELEGRAM NOTIFIER] Ho ciapato un errore,\
-                            fortunatamente. Ecco il messaggio che l'ha causato:")
-                        print(message)
-
-        return
+                                logger.info(f"User {user_email} registered with telegram ID {telegram_id}.")
+                    except Exception as e:
+                        logger.error(f"Error processing message: {e}")
+                        logger.error(f"Message causing error: {message}")
 
 ###############################################
 #                                             #
@@ -122,9 +146,7 @@ def register_new_telegram_user(subs: list[dict]) -> None:
     """
     TG = Telegram()
     TG.register_new_telegram_user(subs)
-
-    return 
-
+    logger.info("New telegram user registration process completed.")
 
 ###############################################
 #                                             #
@@ -146,6 +168,7 @@ def tg_notification(notification: dict) -> None:
     
     if str(notification["telegram"])[0] == 'X':
         # Exit the function when the user did not connect telegram.
+        logger.info("User did not connect telegram. Exiting notification function.")
         return
 
     user = {
@@ -162,13 +185,14 @@ def tg_notification(notification: dict) -> None:
     has_school_started = datetime.now().time() > time(6,15)
 
     if is_dailynotification_time:
-        message["body"] = get_daily_notification_tg_message(user, 
-                                                        notification["events"])
-
+        message["body"] = get_daily_notification_tg_message(user, notification["events"])
+        logger.info("Daily notification time. Preparing daily notification message.")
     elif has_school_started:
         message["body"] = get_last_minute_message(user, notification["events"])
+        logger.info("School has started. Preparing last minute notification message.")
 
     TG = Telegram()
     TG.chat_notification(message)
-    
+    logger.info(f"Notification sent to user {user['id']}.")
+
     return
