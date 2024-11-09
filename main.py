@@ -25,6 +25,7 @@ def deliver_notification(notification: dict) -> None:
         subscribers that need to be notified and
         the corresponding events.
     """
+
     if notification["n_pref"] == 3:
         email_notification(notification)
         tg_notification(notification)
@@ -40,7 +41,6 @@ def deliver_notification(notification: dict) -> None:
 
     elif notification["n_pref"] == 0:
         logger.info(f"No notification preference set for {notification['email']}.")
-
     store_notification(notification["id"], notification["events"])
     logger.info(f"Notification stored for user ID {notification['id']}.")
     return
@@ -72,6 +72,7 @@ def main():
         for user in notifications:
             logger.info(f"Delivering notifications to {user['email']}...")
             deliver_notification(user)  # Deliver the notifications.
+        logger.info("sleeping...")
         time.sleep(600)
     return "fuck."
 

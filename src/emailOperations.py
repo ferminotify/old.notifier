@@ -74,7 +74,7 @@ class Email:
         data["From"] = \
             f"Fermi Notify Team <{self.sender_emails[EMAIL_SENDER_INDEX]}>"
         data["To"] = receiver
-        
+        data["Date"] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
         part1 = MIMEText(body, "plain")
         part2 = MIMEText(html_body, "html")
         data.attach(part1)
