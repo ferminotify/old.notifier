@@ -168,7 +168,8 @@ def pending_registration(subs: list[dict]) -> None:
                 "Subject": get_registration_mail_subject(),
                 "Raw": get_mail_raw(),
                 "Body": get_registration_mail_body(sub["name"], 
-                                                    verification_code),
+                                                    verification_code,
+                                                    sub["gender"]),
             }
             logger.info(f"Sending pending registration email to {sub['email']}.")
             send_email(email)

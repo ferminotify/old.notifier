@@ -8,7 +8,7 @@ if __name__ == "__main__":
         "Receiver": "davide.sirico@gmail.com",
         "Uid": ["conferma_registrazione"],
         "Subject": "prova email",
-        "Raw": "Ci sono nuovi eventi che ti coinvolgono sul calendario giornaliero.",
+        "Raw": "Ci sono nuovi eventi che ti coinvolgono sul calendario giornaliero (ao daje roma annamo al fermi).",
         "Body": "vamoraga forza iuve",
     }
     send_email(email)

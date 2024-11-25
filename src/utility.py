@@ -1,6 +1,9 @@
 from datetime import datetime, time
 from random import choice
 
+from jinja2 import Environment, FileSystemLoader
+env = Environment(loader=FileSystemLoader('email_templates'))
+
 from src.logger import Logger
 logger = Logger()
 
@@ -71,32 +74,19 @@ def get_registration_mail_subject() -> str:
     subject = "Fermi Notify - Conferma la registrazione"
     return subject
 
-def get_registration_mail_body(name: str, verification_code: str) -> str:
+def get_registration_mail_body(name: str, verification_code: str, gender: str) -> str:
     body = ""
     try:
 
-        with open("emails/Confirm-registration/01.htm") as f:
-            body += f.read()
+        template = env.get_template('confirm.min.html')
 
-        body += name
+        data = {
+            'name': name,
+            'verification_code': verification_code,
+            'gender': get_pronominal_particle(gender)
+        }
 
-        with open("emails/Confirm-registration/02.htm") as f:
-            body += f.read()
-
-        body += verification_code
-
-        with open("emails/Confirm-registration/03.htm") as f:
-            body += f.read()
-
-        body += verification_code
-
-        with open("emails/Confirm-registration/04.htm") as f:
-            body += f.read()
-        
-        body += verification_code
-
-        with open("emails/Confirm-registration/05.htm") as f:
-            body += f.read()
+        body = template.render(data)
 
         logger.debug(f"Generated registration mail body for {name}.")
     except Exception as e:
@@ -114,28 +104,12 @@ def get_welcome_mail_subject() -> str:
 def get_welcome_mail_body(user: dict) -> str:
     body = ""
     try:
-        with open("emails/Welcome/01.htm") as f:
-            body += f.read()
-
-        body += user["name"]
-
-        with open("emails/Welcome/02.htm") as f:
-            body += f.read()
-
-        body += get_pronominal_particle(user["gender"])
-
-        with open("emails/Welcome/03.htm") as f:
-            body += f.read()
-
-        body += get_pronominal_particle(user["gender"])
-        
-        with open("emails/Welcome/04.htm") as f:
-            body += f.read()
-
-        body += get_pronominal_particle(user["gender"])
-
-        with open("emails/Welcome/05.htm") as f:
-            body += f.read()
+            template = env.get_template('welcome.min.html')
+            data = {
+                'name': user["name"],
+                'gender': get_pronominal_particle(user["gender"])
+            }
+            body = template.render(data)
     except Exception as e:
         logger.error(f"Error generating welcome mail body: {e}")
     return body
@@ -154,58 +128,25 @@ def get_daily_notification_mail_subject(n_events: int) -> str:
 def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
     body = ""
     try:
-        with open("emails/Daily-notification/01.htm") as f:
-            body += f.read()
-        
-        body += receiver["name"]
+        template = env.get_template('daily.min.html')
+        data = {
+            'name': receiver["name"],
+            'gender': get_pronominal_particle(receiver["gender"]),
+            'n_events': f"{len(events)} eventi" if len(events) > 1 else f"{len(events)} evento",
+            'events': events
+        }
+        # convert events date to dd-mm-yyyy and datetime to hh:mm
+        for event in data['events']:
+            if event['startDate']:
+                event['startDate'] = datetime.datetime.strptime(event['startDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['endDate']:
+                event['endDate'] = datetime.datetime.strptime(event['endDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['startDateTime']:
+                event['startDateTime'] = datetime.datetime.strptime(event['startDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event['endDateTime']:
+                event['endDateTime'] = datetime.datetime.strptime(event['endDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
 
-        with open("emails/Daily-notification/02.htm") as f:
-            body += f.read()
-
-        body += "è previsto <b>" if len(events) == 1 else "sono previsti <b>"
-
-        body += str(len(events))
-
-        with open("emails/Daily-notification/03.htm") as f:
-            body += f.read()
-
-        body += "o" if len(events) == 1 else "i"
-
-        with open("emails/Daily-notification/04.htm") as f:
-            body += f.read()
-
-        for i in events:
-            card_color = get_event_color()
-
-            with open("emails/Daily-notification/05.htm") as f:
-                body += f.read()
-
-            body += card_color
-
-            with open("emails/Daily-notification/06.htm", encoding="utf8") as f:
-                body += f.read()
-
-            body += i["summary"]
-
-            # if event has same start and end date/time (es. entrata posticipata)
-            if i["start.date"] == i["end.date"] and i["start.dateTime"] == i["end.dateTime"]:
-                with open("emails/Daily-notification/07b.htm", encoding="utf8") as f:
-                    body += f.read()
-                body += i["start.dateTime"][11:16] if i["start.dateTime"] else "/".join(i["start.date"].split("-")[::-1])
-            # if event has same start date but different end date/time
-            else:
-                with open("emails/Daily-notification/07a.htm", encoding="utf8") as f:
-                    body += f.read()
-                body += i["start.dateTime"][11:16] if i["start.dateTime"] else "/".join(i["start.date"].split("-")[::-1])
-                with open("emails/Daily-notification/07a1.htm", encoding="utf8") as f:
-                    body += f.read()
-                body += i["end.dateTime"][11:16] if i["end.dateTime"] else "/".join(i["end.date"].split("-")[::-1])
-
-            with open("emails/Daily-notification/08.htm") as f:
-                body += f.read()
-            
-        with open("emails/Daily-notification/09.htm") as f:
-            body += f.read()
+        body = template.render(data)
 
         logger.debug(f"Generated daily notification mail body for {receiver['name']}.")
     except Exception as e:
@@ -222,52 +163,25 @@ def get_last_minute_notification_mail_subject():
 def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:
     body = ""
     try:
-        with open("emails/Last-minute-notification/01.htm", encoding="utf8") as f:
-            body += f.read()
-        
-        body += receiver["name"]
+        template = env.get_template('lastminute.min.html')
+        data = {
+            'name': receiver["name"],
+            'gender': get_pronominal_particle(receiver["gender"]),
+            'n_events': f"{len(events)} nuovi eventi" if len(events) > 1 else f"{len(events)} nuovo evento",
+            'events': events,
+        }
+        # convert events date to dd-mm-yyyy and datetime to hh:mm
+        for event in data['events']:
+            if event['startDate']:
+                event['startDate'] = datetime.datetime.strptime(event['startDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['endDate']:
+                event['endDate'] = datetime.datetime.strptime(event['endDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['startDateTime']:
+                event['startDateTime'] = datetime.datetime.strptime(event['startDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event['endDateTime']:
+                event['endDateTime'] = datetime.datetime.strptime(event['endDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
 
-        with open("emails/Last-minute-notification/02.htm", encoding="utf8") as f:
-            body += f.read()
-
-        body += str(len(events))
-        body += "</b> evento" if len(events) == 1 else "</b> eventi"
-
-        with open("emails/Last-minute-notification/03.htm", encoding="utf8") as f:
-            body += f.read()
-
-        for i in events:
-            card_color = get_event_color()
-
-            with open("emails/Last-minute-notification/04.htm", encoding="utf8") as f:
-                body += f.read()
-
-            body += card_color
-
-            with open("emails/Last-minute-notification/05.htm", encoding="utf8") as f:
-                body += f.read()
-
-            body += i["summary"]
-
-            # if event has same start and end date/time (es. entrata posticipata)
-            if i["start.date"] == i["end.date"] and i["start.dateTime"] == i["end.dateTime"]:
-                with open("emails/Last-minute-notification/06b.htm", encoding="utf8") as f:
-                    body += f.read()
-                body += i["start.dateTime"][11:16] if i["start.dateTime"] else "/".join(i["start.date"].split("-")[::-1])
-            # if event has same start date but different end date/time
-            else:
-                with open("emails/Last-minute-notification/06a.htm", encoding="utf8") as f:
-                    body += f.read()
-                body += i["start.dateTime"][11:16] if i["start.dateTime"] else "/".join(i["start.date"].split("-")[::-1])
-                with open("emails/Last-minute-notification/06a1.htm", encoding="utf8") as f:
-                    body += f.read()
-                body += i["end.dateTime"][11:16] if i["end.dateTime"] else "/".join(i["end.date"].split("-")[::-1])
-
-            with open("emails/Last-minute-notification/07.htm", encoding="utf8") as f:
-                body += f.read()
-            
-        with open("emails/Last-minute-notification/08.htm", encoding="utf8") as f:
-                body += f.read()
+        body = template.render(data)
 
         logger.debug(f"Generated last minute notification mail body for {receiver['name']}.")
     except Exception as e:
