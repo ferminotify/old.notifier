@@ -137,14 +137,14 @@ def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
         }
         # convert events date to dd-mm-yyyy and datetime to hh:mm
         for event in data['events']:
-            if event['startDate']:
-                event['startDate'] = datetime.datetime.strptime(event['startDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['endDate']:
-                event['endDate'] = datetime.datetime.strptime(event['endDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['startDateTime']:
-                event['startDateTime'] = datetime.datetime.strptime(event['startDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-            if event['endDateTime']:
-                event['endDateTime'] = datetime.datetime.strptime(event['endDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event['start.date']:
+                event['start.date'] = datetime.datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['end.date']:
+                event['end.date'] = datetime.datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['start.dateTime']:
+                event['start.dateTime'] = datetime.datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event['end.dateTime']:
+                event['end.dateTime'] = datetime.datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
 
         body = template.render(data)
 
@@ -172,14 +172,14 @@ def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:
         }
         # convert events date to dd-mm-yyyy and datetime to hh:mm
         for event in data['events']:
-            if event['startDate']:
-                event['startDate'] = datetime.datetime.strptime(event['startDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['endDate']:
-                event['endDate'] = datetime.datetime.strptime(event['endDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['startDateTime']:
-                event['startDateTime'] = datetime.datetime.strptime(event['startDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-            if event['endDateTime']:
-                event['endDateTime'] = datetime.datetime.strptime(event['endDateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event['start.date']:
+                event['start.date'] = datetime.datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['end.date']:
+                event['end.date'] = datetime.datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['start.dateTime']:
+                event['start.dateTime'] = datetime.datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event['end.dateTime']:
+                event['end.dateTime'] = datetime.datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
 
         body = template.render(data)
 
