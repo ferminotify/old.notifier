@@ -26,7 +26,7 @@ class NotifierDB():
     """
 
     def __init__(self):
-        load_dotenv()
+        load_dotenv(override=True)
         # Inizializzatore della connessione
         HOSTNAME = os.getenv('HOSTNAME')
         DATABASE = os.getenv('DATABASE')

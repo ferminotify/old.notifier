@@ -2,7 +2,7 @@ from datetime import datetime, time
 from random import choice
 
 from jinja2 import Environment, FileSystemLoader
-env = Environment(loader=FileSystemLoader('email_templates'))
+env = Environment(loader=FileSystemLoader('src/email_templates'))
 
 from src.logger import Logger
 logger = Logger()
