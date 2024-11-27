@@ -74,42 +74,42 @@
 									<tr
 										rowspan="1">
 										<td colspan="2" style="padding: 10px;">🗓️
-											<b><code>{{ event.subject }}</code></b>
+											<b><code>{{ event['summary'] }}</code></b>
 										</td>
 									</tr>
-                                    {% if event.startDate %}
+                                    {% if event['start.date'] %}
                                         <!-- event only has date -->
                                     <tr rowspan="1" style="width: 100%;">
-                                         {% if event.startDate == event.endDate %}
+                                         {% if event['start.date'] == event['end.date'] %}
 
 										<td style="padding-bottom: 10px; width: 100%"><span
 												style="font-size: 0.7rem">date</span><br/>📅
-											<b><code></code>{{ event.startDate }}</code></b>
+											<b><code></code>{{ event['start.date'] }}</code></b>
                                         </td>
 
                                         {% else %}
                                         <td style="width: 50%; padding-bottom: 10px;"><span
-                                                style="font-size: 0.7rem">start</span><br/>⏰ <b><code>{{ event.startDate }}</code></b>
+                                                style="font-size: 0.7rem">start</span><br/>⏰ <b><code>{{ event['start.date'] }}</code></b>
                                         </td>
                                         <td style="width: 50%; padding-bottom: 10px;"><span
-                                                style="font-size: 0.7rem">end</span><br/>🔚 <b><code>{{ event.endDate }}</code></b>
+                                                style="font-size: 0.7rem">end</span><br/>🔚 <b><code>{{ event['end.date'] }}</code></b>
                                         </td>
                                         {% endif %}
                                     </tr>
                                     {% else %}
                                         <!-- event only has time -->
                                     <tr rowspan="1" style="width: 100%;">
-                                        {% if event.startDateTime == event.endDateTime %}
+                                        {% if event['start.dateTime'] == event['end.dateTime'] %}
                                         <td style="padding-bottom: 10px; width: 100%"><span
                                                 style="font-size: 0.7rem">time</span><br/>⏰
-                                            <b><code>{{ event.startDateTime }}</code></b>
+                                            <b><code>{{ event['start.dateTime'] }}</code></b>
                                         </td>
                                         {% else %}
                                         <td style="width: 50%; padding-bottom: 10px;"><span
-                                                style="font-size: 0.7rem">start</span><br/>⏰ <b><code>{{ event.startDateTime }}</code></b>
+                                                style="font-size: 0.7rem">start</span><br/>⏰ <b><code>{{ event['start.dateTime'] }}</code></b>
                                         </td>
                                         <td style="width: 50%; padding-bottom: 10px;"><span
-                                                style="font-size: 0.7rem">end</span><br/>🔚 <b><code>{{ event.endDateTime }}</code></b>
+                                                style="font-size: 0.7rem">end</span><br/>🔚 <b><code>{{ event['end.dateTime'] }}</code></b>
                                         </td>
                                         {% endif %}
                                     </tr>

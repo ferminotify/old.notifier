@@ -105,6 +105,7 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
             notifications.append({
                 "id": sub["id"],
                 "name": sub["name"],
+                "gender": sub["gender"],
                 "email": sub["email"],
                 "n_pref": sub["n_pref"],
                 "telegram": sub["telegram"],

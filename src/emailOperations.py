@@ -215,7 +215,8 @@ def email_notification(notification: dict) -> None:
     user = {
         "id": notification["id"],
         "name": notification["name"],
-        "email": notification["email"]
+        "email": notification["email"],
+        "gender": notification["gender"]
     }
     email = {
         "Receiver_id": user["id"],

@@ -34,19 +34,6 @@ def is_event_today(event: dict) -> bool:
     logger.debug(f"Event is today: {event_is_today}, Notification time: {is_notification_time}")
     return (event_is_today and is_notification_time)
 
-def get_event_color() -> str:
-    # Returns a RBG color for event card in the emails
-
-    colors = [
-        "#1B5E20", "#FF6F00", "#1A237E", "#BF360C", "#01579B", "#33691E",
-        "#880E4F", "#E65100", "#311B92", "#B71C1C", "#004D40", "#F57F17",
-        "#0D47A1", "#827717", "#006064", "#4A148C", 
-    ]
-
-    color = choice(colors)
-    logger.debug(f"Selected event color: {color}")
-    return color
-
 def get_pronominal_particle(gender) -> str:
     if gender == 'M':
         particle = 'o'
@@ -128,24 +115,23 @@ def get_daily_notification_mail_subject(n_events: int) -> str:
 def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
     body = ""
     try:
-        template = env.get_template('daily.min.html')
+        # convert events date to dd-mm-yyyy and datetime to hh:mm
+        for event in data['events']:
+            if event['start.date']:
+                event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['end.date']:
+                event['end.date'] = datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event['start.dateTime']:
+                event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event['end.dateTime']:
+                event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
         data = {
             'name': receiver["name"],
             'gender': get_pronominal_particle(receiver["gender"]),
             'n_events': f"{len(events)} eventi" if len(events) > 1 else f"{len(events)} evento",
             'events': events
         }
-        # convert events date to dd-mm-yyyy and datetime to hh:mm
-        for event in data['events']:
-            if event['start.date']:
-                event['start.date'] = datetime.datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['end.date']:
-                event['end.date'] = datetime.datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['start.dateTime']:
-                event['start.dateTime'] = datetime.datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-            if event['end.dateTime']:
-                event['end.dateTime'] = datetime.datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-
+        template = env.get_template('daily.min.html')
         body = template.render(data)
 
         logger.debug(f"Generated daily notification mail body for {receiver['name']}.")
@@ -163,27 +149,30 @@ def get_last_minute_notification_mail_subject():
 def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:
     body = ""
     try:
-        template = env.get_template('lastminute.min.html')
+        # Initialize the data dictionary
         data = {
             'name': receiver["name"],
             'gender': get_pronominal_particle(receiver["gender"]),
             'n_events': f"{len(events)} nuovi eventi" if len(events) > 1 else f"{len(events)} nuovo evento",
-            'events': events,
+            'events': events
         }
-        # convert events date to dd-mm-yyyy and datetime to hh:mm
+
+        # Convert event date and datetime to required formats
         for event in data['events']:
             if event['start.date']:
-                event['start.date'] = datetime.datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+                event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
             if event['end.date']:
-                event['end.date'] = datetime.datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+                event['end.date'] = datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
             if event['start.dateTime']:
-                event['start.dateTime'] = datetime.datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+                event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
             if event['end.dateTime']:
-                event['end.dateTime'] = datetime.datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+                event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
 
+        # Render the template with the data
+        template = env.get_template('lastminute.min.html')
         body = template.render(data)
 
-        logger.debug(f"Generated last minute notification mail body for {receiver['name']}.")
+        logger.info(f"Generated last minute notification mail body for {receiver['name']}.")
     except Exception as e:
         logger.error(f"Error generating last minute notification mail body: {e}")
     return body
