@@ -3,6 +3,7 @@ from src.emailOperations import pending_registration, welcome_notification, emai
 from src.fermiCalendar import collect_notifications
 from src.telegramOperations import register_new_telegram_user, tg_notification
 from src.logger import Logger
+from datetime import datetime
 logger = Logger()
 
 import time
@@ -68,10 +69,23 @@ def main():
         # Collect all the new notifications
         logger.info("Collecting notifications...")
         notifications = collect_notifications(subs)
+
         logger.info(f"{len(notifications)} notifications collected.")
-        for user in notifications:
-            logger.info(f"Delivering notifications to {user['email']}...")
-            deliver_notification(user)  # Deliver the notifications.
+        for notification in notifications:
+            
+            # convert events date to dd-mm-yyyy and datetime to hh:mm
+            for event in notification['events']:
+                if event['start.date']:
+                    event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+                if event['end.date']:
+                    event['end.date'] = datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+                if event['start.dateTime']:
+                    event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+                if event['end.dateTime']:
+                    event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+
+            logger.info(f"Delivering notifications to {notification['email']}...")
+            deliver_notification(notification)  # Deliver the notifications.
         logger.info("sleeping...")
         time.sleep(600)
     return "fuck."

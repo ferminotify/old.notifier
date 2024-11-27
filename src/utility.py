@@ -1,5 +1,4 @@
 from datetime import datetime, time
-from random import choice
 
 from jinja2 import Environment, FileSystemLoader
 env = Environment(loader=FileSystemLoader('src/email_templates'))
@@ -115,16 +114,6 @@ def get_daily_notification_mail_subject(n_events: int) -> str:
 def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
     body = ""
     try:
-        # convert events date to dd-mm-yyyy and datetime to hh:mm
-        for event in data['events']:
-            if event['start.date']:
-                event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['end.date']:
-                event['end.date'] = datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['start.dateTime']:
-                event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-            if event['end.dateTime']:
-                event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
         data = {
             'name': receiver["name"],
             'gender': get_pronominal_particle(receiver["gender"]),
@@ -156,17 +145,6 @@ def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:
             'n_events': f"{len(events)} nuovi eventi" if len(events) > 1 else f"{len(events)} nuovo evento",
             'events': events
         }
-
-        # Convert event date and datetime to required formats
-        for event in data['events']:
-            if event['start.date']:
-                event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['end.date']:
-                event['end.date'] = datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            if event['start.dateTime']:
-                event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-            if event['end.dateTime']:
-                event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
 
         # Render the template with the data
         template = env.get_template('lastminute.min.html')
@@ -200,13 +178,13 @@ def get_daily_notification_tg_message(receiver: dict, events: list) -> str:
                     body += "\n· *Orario* 📅 "
                 else:
                     body += "\n· *Data* 📅 "
-                body += _["start.dateTime"][11:16] if _["start.dateTime"] else "/".join(_["start.date"].split("-")[::-1])
+                body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
             # if event has same start date but different end date/time
             else:
                 body += "\n· *Inizio* ⏰ "
-                body += _["start.dateTime"][11:16] if _["start.dateTime"] else "/".join(_["start.date"].split("-")[::-1])
+                body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
                 body += "\n· *Fine* 🔚 "
-                body += _["end.dateTime"][11:16] if _["end.dateTime"] else "/".join(_["end.date"].split("-")[::-1])
+                body += _["end.dateTime"] if _["end.dateTime"] else _["end.date"]
             
             body += "\n"
             
@@ -234,13 +212,13 @@ def get_last_minute_message(receiver: dict, events: list) -> str:
                     body += "\n· *Orario* 📅 "
                 else:
                     body += "\n· *Data* 📅 "
-                body += _["start.dateTime"][11:16] if _["start.dateTime"] else "/".join(_["start.date"].split("-")[::-1])
+                body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
             # if event has same start date but different end date/time
             else:
                 body += "\n· *Inizio* ⏰ "
-                body += _["start.dateTime"][11:16] if _["start.dateTime"] else "/".join(_["start.date"].split("-")[::-1])
+                body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
                 body += "\n· *Fine* 🔚 "
-                body += _["end.dateTime"][11:16] if _["end.dateTime"] else "/".join(_["end.date"].split("-")[::-1])
+                body += _["end.dateTime"] if _["end.dateTime"] else _["end.date"]
             body += "\n"
         # footer
         body += f"""\nTi auguriamo buon proseguimento di giornata.\n"""
