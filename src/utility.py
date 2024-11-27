@@ -57,7 +57,7 @@ def get_mail_raw() -> str:
 ###      ACCOUNT CONFIRMATION EMAIL      ###
 
 def get_registration_mail_subject() -> str:
-    subject = "Fermi Notify - Conferma la registrazione"
+    subject = "Conferma la registrazione"
     return subject
 
 def get_registration_mail_body(name: str, verification_code: str, gender: str) -> str:
@@ -84,7 +84,7 @@ def get_registration_mail_body(name: str, verification_code: str, gender: str) -
 ###          WELCOME EMAIL         ###
 
 def get_welcome_mail_subject() -> str:
-    subject = "Fermi Notify - Welcome!"
+    subject = "Welcome!"
     return subject
 
 def get_welcome_mail_body(user: dict) -> str:
@@ -105,7 +105,7 @@ def get_welcome_mail_body(user: dict) -> str:
 ###     DAILY NOTIFICATION EMAIL    ###
 
 def get_daily_notification_mail_subject(n_events: int) -> str:
-    subject = f"Fermi Notify - Daily notification ({n_events} "
+    subject = f"Daily notification ({n_events} "
     subject += f"event{'i' if n_events > 1 else 'o'})"
     logger.debug(f"Generated daily notification mail subject: {subject}")
     return subject
@@ -132,7 +132,7 @@ def get_daily_notification_mail_body(receiver: dict, events: list) -> str:
 ###    LAST MINUTE EMAIL NOTIFICATION    ###
 
 def get_last_minute_notification_mail_subject():
-    subject = "Fermi Notify - Last minute notification"
+    subject = "Last minute notification"
     return subject
 
 def get_last_minute_notification_mail_body(receiver: dict, events: list) -> str:

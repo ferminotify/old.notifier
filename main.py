@@ -60,10 +60,12 @@ def main():
         logger.info("Collecting subscribers data...")
         subs = get_subscribers()
 
+        '''
         logger.info("Handling pending registrations...")
         pending_registration(subs)  # Send the confirmation email
         logger.info("Sending welcome notifications...")
         welcome_notification(subs)  # Welcome the new users
+        '''
         register_new_telegram_user(subs)
 
         # Collect all the new notifications
