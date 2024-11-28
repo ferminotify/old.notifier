@@ -7,8 +7,7 @@ from dotenv import load_dotenv
 from src.utility import *
 from src.databaseOperations import increment_notification_number
 import imaplib
-from datetime import datetime, time
-import pytz
+from datetime import datetime, time, timezone
 from src.logger import Logger
 logger = Logger()
 ###############################################
@@ -106,9 +105,7 @@ class Email:
                 sent_folder = "Sent"
                 imap.select(sent_folder)
 
-                # Make datetime object timezone-aware
-                aware_datetime = datetime.now(pytz.utc)
-
+                aware_datetime = datetime.now(timezone.utc)
                 # Append the email to the Sent folder
                 imap.append(sent_folder, '', imaplib.Time2Internaldate(aware_datetime), email_bytes)
                 logger.debug("Email appended to Sent folder successfully.")
@@ -225,8 +222,8 @@ def email_notification(notification: dict) -> None:
         "Uid": [i["uid"] for i in notification["events"]],
     }
 
-    is_dailynotification_time =  time(5, 0) < datetime.now().time() < time(5, 15)
-    has_school_started = datetime.now().time() > time(5, 15)
+    is_dailynotification_time =  time(6, 0) < datetime.now().time() < time(6, 15)
+    has_school_started = datetime.now().time() > time(6, 15)
 
     if is_dailynotification_time:
         email["Subject"] = get_daily_notification_mail_subject(
