@@ -225,8 +225,8 @@ def email_notification(notification: dict) -> None:
         "Uid": [i["uid"] for i in notification["events"]],
     }
 
-    is_dailynotification_time =  time(6, 0) < datetime.now().time() < time(6, 15)
-    has_school_started = datetime.now().time() > time(6, 15)
+    is_dailynotification_time =  time(5, 0) < datetime.now().time() < time(5, 15)
+    has_school_started = datetime.now().time() > time(5, 15)
 
     if is_dailynotification_time:
         email["Subject"] = get_daily_notification_mail_subject(

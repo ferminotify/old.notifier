@@ -181,8 +181,8 @@ def tg_notification(notification: dict) -> None:
         "receiver": user["telegram"],
     }
 
-    is_dailynotification_time =  time(6,00) < datetime.now().time() < time(6,15)
-    has_school_started = datetime.now().time() > time(6,15)
+    is_dailynotification_time =  time(5,00) < datetime.now().time() < time(5,15)
+    has_school_started = datetime.now().time() > time(5,15)
 
     if is_dailynotification_time:
         message["body"] = get_daily_notification_tg_message(user, notification["events"])
