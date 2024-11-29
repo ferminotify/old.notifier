@@ -76,7 +76,7 @@ def main():
         for notification in notifications:
             
             # convert events date to dd-mm-yyyy and datetime to hh:mm
-            for event in notification['events']:
+            """ for event in notification['events']:
                 if event['start.date']:
                     event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
                 if event['end.date']:
@@ -85,7 +85,7 @@ def main():
                     event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
                 if event['end.dateTime']:
                     event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-
+            """
             logger.info(f"Delivering notifications to {notification['email']}...")
             deliver_notification(notification)  # Deliver the notifications.
         logger.info("sleeping...")
