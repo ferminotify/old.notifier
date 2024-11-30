@@ -189,7 +189,7 @@ def get_daily_notification_tg_message(receiver: dict, events: list) -> str:
             body += "\n"
             
         body += "\nBuona giornata <3\n_Fermi Notify Team_\n"
-        body += "master@ferminotify.me"
+        body += "master@fn.lkev.in"
         logger.debug(f"Generated daily notification Telegram message for {receiver['name']}.")
     except Exception as e:
         logger.error(f"Error generating daily notification Telegram message: {e}")

@@ -54,7 +54,7 @@ class Email:
         msg["Subject"] = "Nuovo iscritto Calendar Notifier"
         msg["From"] = \
             f"Fermi Notify Team <{self.sender_emails[EMAIL_SENDER_INDEX]}>"
-        msg["To"] = "team@ferminotify.me"
+        msg["To"] = "master@fn.lkev.in"
         msg.set_content(f"Salve,\n{new_user} si e' iscritto.\n\n\
                             Fermi Notify Team")
         self.client.send_message(msg)
