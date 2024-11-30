@@ -76,16 +76,33 @@ def main():
         for notification in notifications:
             
             # convert events date to dd-mm-yyyy and datetime to hh:mm
-            """ for event in notification['events']:
+            for event in notification['events']:
+                # Format date fields if present
                 if event['start.date']:
                     event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
                 if event['end.date']:
                     event['end.date'] = datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+                
+                # Format datetime fields if present and valid
                 if event['start.dateTime']:
-                    event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+                    try:
+                        # Check if it's a full ISO datetime or just a time
+                        if 'T' in event['start.dateTime']:
+                            event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+                        else:
+                            logger.warning(f"Unexpected format for start.dateTime: {event['start.dateTime']}")
+                    except ValueError as e:
+                        logger.error(f"Error parsing start.dateTime: {event['start.dateTime']}. Error: {e}")
                 if event['end.dateTime']:
-                    event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
-            """
+                    try:
+                        if 'T' in event['end.dateTime']:
+                            event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+                        else:
+                            logger.warning(f"Unexpected format for end.dateTime: {event['end.dateTime']}")
+                    except ValueError as e:
+                        logger.error(f"Error parsing end.dateTime: {event['end.dateTime']}. Error: {e}")
+
+
             logger.info(f"Delivering notifications to {notification['email']}...")
             deliver_notification(notification)  # Deliver the notifications.
         logger.info("sleeping...")
