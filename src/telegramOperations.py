@@ -4,10 +4,13 @@ from dotenv import load_dotenv
 import telepot
 from urllib3.exceptions import ReadTimeoutError
 from time import sleep
+import pytz
+from datetime import timedelta
 
+from src.utility import is_event_today
 from src.logger import Logger
 from src.databaseOperations import get_tg_offset, update_tg_offset, update_telegram_id
-from src.utility import get_daily_notification_tg_message, get_last_minute_message
+from src.utility import get_tg_message
 
 logger = Logger()
 
@@ -174,25 +177,48 @@ def tg_notification(notification: dict) -> None:
     user = {
         "id": notification["id"],
         "name": notification["name"],
-        "telegram": notification["telegram"]
+        "telegram": notification["telegram"],
+        "n_time": notification["n_time"],
     }
     message = {
         "receiver_id": user["id"],
         "receiver": user["telegram"],
     }
 
-    is_dailynotification_time =  time(6,00) < datetime.now().time() < time(6,15)
-    has_school_started = datetime.now().time() > time(6,15)
+    # capire se daily o last min
+
+    # convert user["n_time"] datetime.time to datetime object to add minutes
+    user_datetime = datetime.combine(datetime.today(), user["n_time"])
+
+    # daily notification time is between user n_time and n_time + 15 minutes
+    is_dailynotification_time = user_datetime.time() <= datetime.now(pytz.timezone('Europe/Rome')).time() <= (user_datetime + timedelta(minutes=15)).time()
+    is_lastminnotification_time = datetime.now(pytz.timezone('Europe/Rome')).time() > user_datetime.time()
+
+    if user["n_time"] >= time(13, 0):
+        # se l'evento è di oggi allora invia last minute
+        # filtra gli eventi e lascia solo quelli di oggi
+        today_not = [i for i in notification["events"] if is_event_today(i, time(0,0))]
+        # se è vuoto allora non inviare la mail, altrimenti invia last minute
+        is_lastminnotification_time_send_today = len(today_not) > 0
+
 
     if is_dailynotification_time:
-        message["body"] = get_daily_notification_tg_message(user, notification["events"])
-        logger.info("Daily notification time. Preparing daily notification message.")
-    elif has_school_started:
-        message["body"] = get_last_minute_message(user, notification["events"])
-        logger.info("School has started. Preparing last minute notification message.")
-
-    TG = Telegram()
-    TG.chat_notification(message)
-    logger.info(f"Notification sent to user {user['id']}.")
+        message["body"] = get_tg_message(user, notification["events"], True)
+        logger.info("Daily notification time. Preparing daily notification tg message.")
+        TG = Telegram()
+        TG.chat_notification(message)
+        logger.info(f"Notification sent to user {user['id']}.")
+    elif is_lastminnotification_time:
+        message["body"] = get_tg_message(user, notification["events"], False)
+        logger.info("Preparing last minute notification tg message.")
+        TG = Telegram()
+        TG.chat_notification(message)
+        logger.info(f"Notification sent to user {user['id']}.")
+    elif is_lastminnotification_time_send_today:
+        message["body"] = get_tg_message(user, today_not, False)
+        logger.info("Preparing last minute notification tg message.")
+        TG = Telegram()
+        TG.chat_notification(message)
+        logger.info(f"Notification sent to user {user['id']}.")
 
     return

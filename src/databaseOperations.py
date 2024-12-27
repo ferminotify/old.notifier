@@ -80,6 +80,7 @@ class NotifierDB():
             user["n_not"] = i[7]
             user["gender"] = i[8]
             user["n_pref"] = i[9]
+            user["n_time"] = i[10]
             
             all_users.append(user)
 
