@@ -63,28 +63,45 @@ class NotifierDB():
         Returns:
             list: list of tuples containing all the subscribers.
         """
-        self.cursor.execute(f"SELECT * FROM subscribers")
+        self.cursor.execute("SELECT * FROM subscribers")
         fetched_subscribers = self.cursor.fetchall()
         self.connection.commit()
+
+        column_names = [desc[0] for desc in self.cursor.description]
+        fetched_subscribers = [dict(zip(column_names, row)) for row in fetched_subscribers]
         logger.debug("Fetched all subscribers from the database.")
 
+        # TODO optimize this in new version
+
+        # rename notifications to n_not
+        fetched_subscribers = [dict((k, v) if k != "notifications" else ("n_not", v) for k, v in d.items()) for d in fetched_subscribers]
+        # rename notification_preferences to n_pref
+        fetched_subscribers = [dict((k, v) if k != "notification_preferences" else ("n_pref", v) for k, v in d.items()) for d in fetched_subscribers]
+        # rename notification_day_before to n_day
+        fetched_subscribers = [dict((k, v) if k != "notification_day_before" else ("n_day", v) for k, v in d.items()) for d in fetched_subscribers]
+        # rename notification_time to n_time
+        fetched_subscribers = [dict((k, v) if k != "notification_time" else ("n_time", v) for k, v in d.items()) for d in fetched_subscribers]
+
+        '''
         all_users = []
+        print(fetched_subscribers)
         for i in fetched_subscribers:
             user = {}
-            user["id"] = i[0]
-            user["name"] = i[1]
-            user["surname"] = i[2]
-            user["email"] = i[3]
-            user["telegram"] = i[5]
-            user["tags"] = i[6]
+            user["id"] = i["id"]
+            user["name"] = i["name"]
+            user["surname"] = i["surname"]
+            user["email"] = i["email"]
+            user["telegram"] = i["telegram"]
+            user["tags"] = i[2]
             user["n_not"] = i[7]
             user["gender"] = i[8]
             user["n_pref"] = i[9]
-            user["n_time"] = i[10]
+            user["n_day"] = i[10]
+            user["n_time"] = i[11]
             
             all_users.append(user)
-
-        return all_users
+        '''
+        return fetched_subscribers
 
     def get_all_sent_id(self) -> list[int]:
         """Gets all the ids of sent notifications to a user.

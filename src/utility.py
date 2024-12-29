@@ -16,7 +16,7 @@ logger = Logger()
 #                                             #
 ###############################################
 
-def is_event_today(event: dict, notification_time: time) -> bool:
+def is_event_today(event: dict, notification_day_before: bool, notification_time: time) -> bool:
     # Check if the notification has to be sent now (considering the 
     # current time and the datetime of the event)
     
@@ -34,11 +34,11 @@ def is_event_today(event: dict, notification_time: time) -> bool:
 
     # Check if I need to add the events of tomorrow
     event_is_tmrw = False
-    if notification_time >= time(13,00):
+    if notification_day_before:
         event_is_tmrw = event_time[:10] == str(datetime.today() + timedelta(days=1))[:10]
 
     is_notification_time = datetime.now(pytz.timezone('Europe/Rome')).time() >= notification_time
-    if notification_time >= time(13,00): # user notification time >= 13:00
+    if notification_day_before:
         # se l'evento è di oggi allora invia last minute
         if event_is_today:
             is_notification_time = True

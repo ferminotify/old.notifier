@@ -95,23 +95,10 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
                 evt_not_in_db = evt["uid"] not in sent
 
                 # user daily notification time
-                '''
-                daily notification set after 13:00 will be sent the day before
-                daily notification set before 8:10 will be sent the same day
-
-                last minute notification will be sent any time after the set time for the daily notification
-                - if the daily notification is set after 8:00, the last minute notification will be sent for events of the same day
-                - if the daily notification is set before 8:00, the last minute notification will be sent for events of the same day and the next day
-
-                therefore, 
-                => if user time is > 13:00 then search for events of today and the next day
-                => if user time is < 8:10 then search for events of today
-                '''
-                # quindi associa gli eventi di oggi (< 8:10) / di oggi e di domani (> 13:00) a ogni utente
                 # in is_event_today check if it needs to add the events of tomorrow
 
                 if kw_in_subject and evt_not_in_db:
-                    if is_event_today(evt, sub["n_time"]):
+                    if is_event_today(evt, sub["n_day"], sub["n_time"]):
                         # add "is_today" to the event
                         user_events.append(evt)
         
@@ -126,6 +113,7 @@ def collect_notifications(subs: list[dict]) -> list[dict]:
                 "email": sub["email"],
                 "n_pref": sub["n_pref"],
                 "n_time": sub["n_time"],
+                "n_day": sub["n_day"],
                 "telegram": sub["telegram"],
                 "events": user_events
             })

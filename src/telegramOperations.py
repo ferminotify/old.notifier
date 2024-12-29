@@ -179,6 +179,7 @@ def tg_notification(notification: dict) -> None:
         "name": notification["name"],
         "telegram": notification["telegram"],
         "n_time": notification["n_time"],
+        "n_day": notification["n_day"]
     }
     message = {
         "receiver_id": user["id"],
@@ -194,10 +195,10 @@ def tg_notification(notification: dict) -> None:
     is_dailynotification_time = user_datetime.time() <= datetime.now(pytz.timezone('Europe/Rome')).time() <= (user_datetime + timedelta(minutes=15)).time()
     is_lastminnotification_time = datetime.now(pytz.timezone('Europe/Rome')).time() > user_datetime.time()
 
-    if user["n_time"] >= time(13, 0):
+    if user["n_day"]:
         # se l'evento è di oggi allora invia last minute
         # filtra gli eventi e lascia solo quelli di oggi
-        today_not = [i for i in notification["events"] if is_event_today(i, time(0,0))]
+        today_not = [i for i in notification["events"] if is_event_today(i, True, user["n_time"])]
         # se è vuoto allora non inviare la mail, altrimenti invia last minute
         is_lastminnotification_time_send_today = len(today_not) > 0
 
