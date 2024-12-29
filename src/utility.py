@@ -190,24 +190,69 @@ def get_tg_body(events: list) -> str:
     for _ in events:
         body += f"""\n· `{_["summary"]}`"""
 
-            # if event has same start and end date/time (es. entrata posticipata)
-            if _["start.date"] == _["end.date"] and _["start.dateTime"] == _["end.dateTime"]:
-                if _["start.dateTime"] != None:
-                    body += "\n· *Orario* 📅 "
-                else:
-                    body += "\n· *Data* 📅 "
-                body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
-            # if event has same start date but different end date/time
+        # if event has same start and end date/time (es. entrata posticipata)
+        if _["start.date"] == _["end.date"] and _["start.dateTime"] == _["end.dateTime"]:
+            if _["start.dateTime"] != None:
+                body += "\n· *Orario* 📅 "
             else:
-                body += "\n· *Inizio* ⏰ "
-                body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
-                body += "\n· *Fine* 🔚 "
-                body += _["end.dateTime"] if _["end.dateTime"] else _["end.date"]
+                body += "\n· *Data* 📅 "
+            body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
+        # if event has same start date but different end date/time
+        else:
+            body += "\n· *Inizio* ⏰ "
+            body += _["start.dateTime"] if _["start.dateTime"] else _["start.date"]
+            body += "\n· *Fine* 🔚 "
+            body += _["end.dateTime"] if _["end.dateTime"] else _["end.date"]
+        body += "\n"
+    return body
+
+def get_tg_message(receiver: dict, events: list, is_daily: bool) -> str:
+    body = ""
+    try:
+        if is_daily:
+            body += f"""Ciao {receiver["name"]}, ci sono degli eventi previsti:\n"""
+        else:
+            body += f"""Ciao {receiver["name"]},\nabbiamo trovato {len(events)} """
+            body += f"event{'i' if len(events) > 1 else 'o'} dell'ultimo minuto:\n"
+
+        # separate events of today and tomorrow
+        events_tomorrow = []
+        events_today = []
+
+        for event in events:
+            if event.get('start.date') and datetime.strptime(event['start.date'], '%Y-%m-%d').date() == datetime.now().date() + timedelta(days=1):
+                events_tomorrow.append(event)
+            elif event.get('start.dateTime') and datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').date() == datetime.now().date() + timedelta(days=1):
+                events_tomorrow.append(event)
+            else:
+                events_today.append(event)
+
+        # convert events date to dd-mm-yyyy and datetime to hh:mm
+        for event in events_today + events_tomorrow:
+            if event.get('start.date'):
+                event['start.date'] = datetime.strptime(event['start.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event.get('end.date'):
+                event['end.date'] = datetime.strptime(event['end.date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            if event.get('start.dateTime'):
+                event['start.dateTime'] = datetime.strptime(event['start.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+            if event.get('end.dateTime'):
+                event['end.dateTime'] = datetime.strptime(event['end.dateTime'], '%Y-%m-%dT%H:%M:%S%z').strftime('%H:%M')
+
+        giorns = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]
+
+        if len(events_today) > 0:
+            body += f"\n*Oggi* {giorns[datetime.now().weekday()]} {datetime.now().strftime('%d/%m')}:\n"
+            body += get_tg_body(events_today)
+
+        if len(events_tomorrow) > 0:
+            body += f"\n*Domani* {giorns[(datetime.now() + timedelta(days=1)).weekday()]} {(datetime.now() + timedelta(days=1)).strftime('%d/%m')}:\n"
+            body += get_tg_body(events_tomorrow)
             
-            body += "\n"
-            
-        body += "\nBuona giornata <3\n_Fermi Notify Team_\n"
-        body += "master@fn.lkev.in"
+        if is_daily:
+            body += "\nBuona giornata <3\n_Fermi Notify Team_\n"
+        else:
+            body += f"""\nTi auguriamo buon proseguimento di giornata.\n_Fermi Notify Team_\n"""
+        body += "mail@fn.lkev.in"
         logger.debug(f"Generated daily notification Telegram message for {receiver['name']}.")
     except Exception as e:
         logger.error(f"Error generating daily notification Telegram message: {e}")

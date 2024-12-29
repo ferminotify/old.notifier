@@ -76,6 +76,9 @@ def main():
         
         for notification in notifications:
             '''
+
+            # ho spostato sto blocco qui in utility.py
+
             # convert events date to dd-mm-yyyy and datetime to hh:mm
             for event in notification['events']:
                 # Format date fields if present
