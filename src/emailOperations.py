@@ -8,6 +8,7 @@ from src.utility import *
 from src.databaseOperations import increment_notification_number
 import imaplib
 from datetime import datetime, time, timezone
+import pytz
 from src.logger import Logger
 logger = Logger()
 ###############################################
@@ -213,7 +214,8 @@ def email_notification(notification: dict) -> None:
         "id": notification["id"],
         "name": notification["name"],
         "email": notification["email"],
-        "gender": notification["gender"]
+        "gender": notification["gender"],
+        "n_time": notification["n_time"],
     }
     email = {
         "Receiver_id": user["id"],
@@ -222,21 +224,41 @@ def email_notification(notification: dict) -> None:
         "Uid": [i["uid"] for i in notification["events"]],
     }
 
-    is_dailynotification_time =  time(6, 0) < datetime.now().time() < time(6, 15)
-    has_school_started = datetime.now().time() > time(6, 15)
+    # capire se daily o last min
+
+    # convert user["n_time"] datetime.time to datetime object to add minutes
+    user_datetime = datetime.combine(datetime.today(), user["n_time"])
+
+    # daily notification time is between user n_time and n_time + 15 minutes
+    is_dailynotification_time = user_datetime.time() <= datetime.now(pytz.timezone('Europe/Rome')).time() <= (user_datetime + timedelta(minutes=15)).time()
+    is_lastminnotification_time = datetime.now(pytz.timezone('Europe/Rome')).time() > user_datetime.time()
+
+    if user["n_time"] >= time(13, 0):
+        # se l'evento è di oggi allora invia last minute
+        # filtra gli eventi e lascia solo quelli di oggi
+        today_not = [i for i in notification["events"] if is_event_today(i, time(0,0))]
+        # se è vuoto allora non inviare la mail, altrimenti invia last minute
+        is_lastminnotification_time_send_today = len(today_not) > 0
 
     if is_dailynotification_time:
-        email["Subject"] = get_daily_notification_mail_subject(
-                                                len(notification["events"]))
-        email["Body"] = get_daily_notification_mail_body(user, 
-                                                        notification["events"])
-    
-    elif has_school_started:
-        email["Subject"] = get_last_minute_notification_mail_subject()
-        email["Body"] = get_last_minute_notification_mail_body(user, 
-                                                        notification["events"])
+        email["Subject"] = get_mail_notification_subject(len(notification["events"]), True)
+        email["Body"] = get_mail_notification_body(user, notification["events"], True)
 
-    logger.info(f"Sending notification email to {user['email']} with subject: {email['Subject']}.")
-    send_email(email)   
+        logger.info(f"Sending daily notification email to {user['email']} with subject: {email['Subject']}.")
+        send_email(email)
+    
+    elif is_lastminnotification_time:
+        email["Subject"] = get_mail_notification_subject(len(notification["events"]), False)
+        email["Body"] = get_mail_notification_body(user, notification["events"], False)
+    
+        logger.info(f"Sending last min notification email to {user['email']} with subject: {email['Subject']}.")
+        send_email(email)
+
+    elif is_lastminnotification_time_send_today:
+        email["Subject"] = get_mail_notification_subject(len(today_not), False)
+        email["Body"] = get_mail_notification_body(user, today_not, False)
+    
+        logger.info(f"Sending last min notification email to {user['email']} with subject: {email['Subject']}.")
+        send_email(email)
 
     return

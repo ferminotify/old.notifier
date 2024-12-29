@@ -73,8 +73,9 @@ def main():
         notifications = collect_notifications(subs)
 
         logger.info(f"{len(notifications)} notifications collected.")
+        
         for notification in notifications:
-            
+            '''
             # convert events date to dd-mm-yyyy and datetime to hh:mm
             for event in notification['events']:
                 # Format date fields if present
@@ -101,12 +102,13 @@ def main():
                             logger.warning(f"Unexpected format for end.dateTime: {event['end.dateTime']}")
                     except ValueError as e:
                         logger.error(f"Error parsing end.dateTime: {event['end.dateTime']}. Error: {e}")
-
+            '''
 
             logger.info(f"Delivering notifications to {notification['email']}...")
             deliver_notification(notification)  # Deliver the notifications.
+
         logger.info("sleeping...")
-        time.sleep(600)
+        time.sleep(300)
     return "fuck."
 
 
