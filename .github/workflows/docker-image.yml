@@ -31,11 +31,11 @@ jobs:
     # Step 4: Build the Docker image
     - name: Build the Docker image
       run: |
-        docker build -t zupup/notifier:${{ github.sha }} .  # Tag with commit SHA for uniqueness
-        docker tag zupup/notifier:${{ github.sha }} zupup/notifier:latest  # Tag the same image as latest
+        docker build -t zupup/old.notifier:${{ github.sha }} .  
+        docker tag zupup/old.notifier:${{ github.sha }} zupup/old.notifier:latest  
 
     # Step 5: Push both tags to Docker Hub
     - name: Push the image to Docker Hub
       run: |
-        docker push zupup/notifier:${{ github.sha }}
-        docker push zupup/notifier:latest
+        docker push zupup/old.notifier:${{ github.sha }}
+        docker push zupup/old.notifier:latest
